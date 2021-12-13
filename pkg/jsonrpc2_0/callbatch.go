@@ -18,6 +18,9 @@ func NewCallBatch(client *Client) *CallBatch {
 }
 
 func (cb *CallBatch) Push(c *Call) *CallBatch {
+	if len(cb.calls) >= cb.client.batchCallLimit {
+		panic(fmt.Sprintf("the batch call contain request more than %d", cb.client.batchCallLimit))
+	}
 	cb.calls[c.request.ID] = c
 	return cb
 }

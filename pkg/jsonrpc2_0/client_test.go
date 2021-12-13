@@ -20,6 +20,7 @@ func TestClient_CallBatch(t *testing.T) {
 		Addr:    "http://catalog-service.dev.tgs.com",
 		Timeout: time.Second * 2,
 	})
+	client.SetbatchCallLimit(100)
 
 	callBatch := client.CallBatch()
 	call1 := client.Call("Catalog\\Area.parent", 378)

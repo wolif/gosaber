@@ -6,15 +6,18 @@ import (
 	"time"
 )
 
+const BatchCallLimitDef = 100
+
 type Config struct {
 	Addr    string
 	Timeout time.Duration
 }
 
 type Client struct {
-	protocol  Protocol
-	transport Transport
-	config    *Config
+	protocol       Protocol
+	transport      Transport
+	config         *Config
+	batchCallLimit int
 }
 
 func (c *Client) SetProtocol(protocol Protocol) *Client {
@@ -27,14 +30,17 @@ func (c *Client) SetTransport(transport Transport) *Client {
 	return c
 }
 
+func (c *Client) SetbatchCallLimit(n int) *Client {
+	c.batchCallLimit = n
+	return c
+}
+
 func NewClient(config *Config) *Client {
 	return &Client{
-		protocol: new(protocol.Json),
-		transport: &transport.HttpClient{
-			Url:     config.Addr,
-			Timeout: config.Timeout,
-		},
-		config: config,
+		protocol:       new(protocol.Json),
+		transport:      &transport.HttpClient{Url: config.Addr, Timeout: config.Timeout,},
+		config:         config,
+		batchCallLimit: BatchCallLimitDef,
 	}
 }
 
