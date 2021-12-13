@@ -4,7 +4,6 @@ import (
 	"context"
 	"io"
 	"net/http"
-	"time"
 )
 
 type Method = string
@@ -16,28 +15,21 @@ const (
 	DELETE Method = "DELETE"
 )
 
-func makeOptionsDefault(opts ...*Option) *Option {
-	if len(opts) > 0 {
-		return opts[0]
-	}
-	return NewOption().SetTimeout(time.Second * 2)
-}
-
 /**
  * otherParams type: []byte: body | string: body | io.Reader: body | context.Context: | http.Header | Option
  */
 func DoMethod(method Method, url string, otherParams ...interface{}) (*Calling, error) {
 	calling := New(url).Method(method)
 	for _, param := range otherParams {
-		switch param.(type) {
+		switch p := param.(type) {
 		case []byte, string, io.Reader:
-			calling.Body(param)
+			calling.Body(p)
 		case context.Context:
-			calling.Context(param.(context.Context))
+			calling.Context(p)
 		case http.Header:
-			calling.Header(param.(http.Header))
+			calling.Header(p)
 		case *Option:
-			calling.Option(param.(*Option))
+			calling.Option(p)
 		}
 	}
 	err := calling.Do()

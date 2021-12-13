@@ -1,6 +1,5 @@
 package httpclient
 
-import "C"
 import (
 	"bytes"
 	"context"
@@ -100,13 +99,13 @@ func (c *Calling) GetHeaderByKey(key string) string {
 }
 
 func (c *Calling) Body(body interface{}) *Calling {
-	switch body.(type) {
+	switch b := body.(type) {
 	case io.Reader:
-		c.body = body.(io.Reader)
+		c.body = b
 	case string:
-		c.body = strings.NewReader(body.(string))
+		c.body = strings.NewReader(b)
 	case []byte:
-		c.body = bytes.NewReader(body.([]byte))
+		c.body = bytes.NewReader(b)
 	default:
 		panic("httpbody should be []byte or string")
 	}
