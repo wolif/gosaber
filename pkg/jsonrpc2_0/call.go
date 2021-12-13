@@ -1,37 +1,47 @@
 package jsonrpc2_0
 
-import "fmt"
+import (
+	"context"
+	"fmt"
+)
 
-type call struct {
+type Call struct {
 	client   *Client
 	request  *Request
 	response *Response
 }
 
-func NewCall(client *Client, method string, params ...interface{}) *call {
-	return &call{
+func NewCall(client *Client, method string, params ...interface{}) *Call {
+	return &Call{
 		client:  client,
 		request: NewRequest().SetMethod(method).SetParams(params...),
 	}
 }
 
-func (c *call) SetClient(client *Client) *call {
+func (c *Call) SetClient(client *Client) *Call {
 	c.client = client
 	return c
 }
 
-func (c *call) SetMethod(method string) *call {
+func (c *Call) SetMethod(method string) *Call {
 	c.request.SetMethod(method)
 	return c
 }
 
-func (c *call) Invoke(params ...interface{}) error {
-	c.request.SetParams(params...)
+func (c *Call) SetParams(params ...interface{}) *Call {
+	c.request.SetParams(params)
+	return c
+}
+
+func (c *Call) Invoke(ctx context.Context, params ...interface{}) error {
+	if len(params) > 0 {
+		c.SetParams(params...)
+	}
 	reqData, err := c.client.protocol.Encode(c.request)
 	if err != nil {
 		return fmt.Errorf("encode request error: %s", err.Error())
 	}
-	respData, err := c.client.transprot.Send(reqData)
+	respData, err := c.client.transport.Send(ctx, reqData)
 	if err != nil {
 		return fmt.Errorf("send request error: %s", err.Error())
 	}
@@ -43,7 +53,7 @@ func (c *call) Invoke(params ...interface{}) error {
 	return nil
 }
 
-func (c *call) Resolve(result interface{}) (errResp *ResponseError, err error) {
+func (c *Call) Resolve(result interface{}) (errResp *ResponseError, err error) {
 	if c.response == nil {
 		return nil, fmt.Errorf("the request hasn't been sent")
 	}

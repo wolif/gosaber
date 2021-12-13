@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-type Calling struct {
+type Client struct {
 	ctx          context.Context
 	method       string
 	url          string
@@ -21,8 +21,8 @@ type Calling struct {
 	responseBody []byte
 }
 
-func New(url ...string) *Calling {
-	c := &Calling{
+func New(url ...string) *Client {
+	c := &Client{
 		ctx:    context.TODO(),
 		method: GET,
 		header: http.Header{},
@@ -34,22 +34,22 @@ func New(url ...string) *Calling {
 	return c
 }
 
-func (c *Calling) SetContext(ctx context.Context) *Calling {
+func (c *Client) SetContext(ctx context.Context) *Client {
 	c.ctx = ctx
 	return c
 }
 
-func (c *Calling) SetMethod(method Method) *Calling {
+func (c *Client) SetMethod(method Method) *Client {
 	c.method = method
 	return c
 }
 
-func (c *Calling) SetUrl(url string) *Calling {
+func (c *Client) SetUrl(url string) *Client {
 	c.url = url
 	return c
 }
 
-func (c *Calling) SetBody(httpbody interface{}) *Calling {
+func (c *Client) SetBody(httpbody interface{}) *Client {
 	switch httpbody.(type) {
 	case string:
 		c.body = strings.NewReader(httpbody.(string))
@@ -61,7 +61,7 @@ func (c *Calling) SetBody(httpbody interface{}) *Calling {
 	return c
 }
 
-func (c *Calling) SetHeader(headers ...interface{}) *Calling {
+func (c *Client) SetHeader(headers ...interface{}) *Client {
 	if len(headers) == 2 {
 		if _, ok1 := headers[0].(string); ok1 {
 			if _, ok2 := headers[1].(string); ok2 {
@@ -81,25 +81,25 @@ func (c *Calling) SetHeader(headers ...interface{}) *Calling {
 	return c
 }
 
-func (c *Calling) SetOption(opt *Option) *Calling {
+func (c *Client) SetOption(opt *Option) *Client {
 	c.option = opt
 	return c
 }
 
 // -----------------------------------------------------------------------------
-func (c *Calling) POST(url string, body ...interface{}) error {
+func (c *Client) POST(url string, body ...interface{}) error {
 	if len(body) == 1 {
 		c.SetBody(body[0])
 	}
 	return c.SetUrl(url).SetMethod(POST).Do(c.ctx)
 }
 
-func (c *Calling) GET(url string) error {
+func (c *Client) GET(url string) error {
 	return c.SetUrl(url).SetMethod(GET).Do(c.ctx)
 }
 
 // -----------------------------------------------------------------------------
-func (c *Calling) set(client *http.Client, request *http.Request) *Calling {
+func (c *Client) set(client *http.Client, request *http.Request) *Client {
 	request.Header = c.header
 	if c.option == nil {
 		return c
@@ -110,7 +110,7 @@ func (c *Calling) set(client *http.Client, request *http.Request) *Calling {
 	return c
 }
 
-func (c *Calling) Do(ctx ...context.Context) (err error) {
+func (c *Client) Do(ctx ...context.Context) (err error) {
 	if len(ctx) > 0 {
 		c.SetContext(ctx[0])
 	}
@@ -132,11 +132,11 @@ func (c *Calling) Do(ctx ...context.Context) (err error) {
 	return
 }
 
-func (c *Calling) GetResponse() *http.Response {
+func (c *Client) GetResponse() *http.Response {
 	return c.response
 }
 
-func (c *Calling) GetResponseBody() ([]byte, error) {
+func (c *Client) GetResponseBody() ([]byte, error) {
 	if c.responseBody == nil {
 		defer c.response.Body.Close()
 		rb := make([]byte, 0)
@@ -150,6 +150,6 @@ func (c *Calling) GetResponseBody() ([]byte, error) {
 	return c.responseBody, nil
 }
 
-func (c *Calling) GetResponseStatusCode() int {
+func (c *Client) GetResponseStatusCode() int {
 	return c.response.StatusCode
 }

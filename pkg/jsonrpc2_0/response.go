@@ -64,5 +64,5 @@ type Response struct {
 	JsonRpc string         `json:"jsonrpc"`
 	Result  interface{}    `json:"result,omitempty"`
 	Error   *ResponseError `json:"error,omitempty"`
-	ID      interface{}    `json:"id"`
+	ID      int64          `json:"id"`
 }

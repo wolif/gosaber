@@ -6,10 +6,10 @@ type Request struct {
 	JsonRpc string      `json:"jsonrpc"`
 	Method  string      `json:"method"`
 	Params  interface{} `json:"params,omitempty"`
-	ID      interface{} `json:"id"`
+	ID      int64 `json:"id"`
 }
 
-func NewRequest(id ...interface{}) *Request {
+func NewRequest(id ...int64) *Request {
 	req := &Request{
 		JsonRpc: VERSION,
 	}

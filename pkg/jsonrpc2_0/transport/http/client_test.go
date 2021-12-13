@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestCalling(t *testing.T) {
+func TestClient(t *testing.T) {
 	calling := New()
 	err := calling.GET("http://cn.bing.com")
 	if err != nil {

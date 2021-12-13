@@ -1,33 +1,34 @@
 package jsonrpc2_0
 
 import (
+	"context"
 	"fmt"
 )
 
-type callBatch struct {
+type CallBatch struct {
 	client *Client
-	calls  map[interface{}]*call // map[Request.ID]*Request
+	calls  map[int64]*Call // map[Request.ID]*Request
 }
 
-func NewCallBatch(client *Client) *callBatch {
-	return &callBatch{
+func NewCallBatch(client *Client) *CallBatch {
+	return &CallBatch{
 		client: client,
-		calls:  make(map[interface{}]*call),
+		calls:  make(map[int64]*Call),
 	}
 }
 
-func (cb *callBatch) Push(c *call) *callBatch {
+func (cb *CallBatch) Push(c *Call) *CallBatch {
 	cb.calls[c.request.ID] = c
 	return cb
 }
 
-func (cb *callBatch) Call(method string, params ...interface{}) *call {
+func (cb *CallBatch) Call(method string, params ...interface{}) *Call {
 	c := NewCall(cb.client, method, params...)
 	cb.Push(c)
 	return c
 }
 
-func (cb *callBatch) Invoke() error {
+func (cb *CallBatch) Invoke(ctx context.Context) error {
 	data := make([]*Request, 0)
 	for _, call := range cb.calls {
 		data = append(data, call.request)
@@ -36,15 +37,15 @@ func (cb *callBatch) Invoke() error {
 	if err != nil {
 		return fmt.Errorf("encode request error:%s", err.Error())
 	}
-	respData, err := cb.client.transprot.Send(reqData)
+	respData, err := cb.client.transport.Send(ctx, reqData)
 	if err != nil {
 		return fmt.Errorf("send request error: %s", err.Error())
 	}
 	resps := make([]*Response, 0)
-	if err = cb.client.protocol.Decode(respData, resps); err != nil {
+	if err = cb.client.protocol.Decode(respData, &resps); err != nil {
 		return fmt.Errorf("can't parse response data from server, origin data:%s", string(respData))
 	}
-	respMap := make(map[interface{}]*Response)
+	respMap := make(map[int64]*Response)
 	for _, resp := range resps {
 		respMap[resp.ID] = resp
 	}
