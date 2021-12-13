@@ -38,7 +38,7 @@ func (c *Client) SetbatchCallLimit(n int) *Client {
 func NewClient(config *Config) *Client {
 	return &Client{
 		protocol:       new(protocol.Json),
-		transport:      &transport.HttpClient{Url: config.Addr, Timeout: config.Timeout,},
+		transport:      &transport.Http{Url: config.Addr, Timeout: config.Timeout,},
 		config:         config,
 		batchCallLimit: BatchCallLimitDef,
 	}
