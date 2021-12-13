@@ -22,19 +22,12 @@ func (grpHandler) Cleanup(sess sarama.ConsumerGroupSession) error {
 	return nil
 }
 func (h grpHandler) ConsumeClaim(sess sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error {
-Loop:
-	for {
-		select {
-		case msg := <-claim.Messages():
-			if msg != nil {
-				h.MsgChan <- string(msg.Value)
-				sess.MarkMessage(msg, "")
-			}
-		case <-h.Ctx.Done():
-			break Loop
+	for msg := range claim.Messages() {
+		if msg != nil {
+			h.MsgChan <- string(msg.Value)
+			sess.MarkMessage(msg, "")
 		}
 	}
-	return nil
 }
 
 /*

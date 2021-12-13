@@ -20,20 +20,13 @@ func (cbGrpHandler) Cleanup(sess sarama.ConsumerGroupSession) error {
 	return nil
 }
 func (h cbGrpHandler) ConsumeClaim(sess sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error {
-Loop:
-	for {
-		select {
-		case msg := <-claim.Messages():
-			if h.MsgFunc != nil && msg != nil {
-				metadata := ""
-				metadata = h.MsgFunc(msg)
-				sess.MarkMessage(msg, metadata)
-			}
-		case <-h.Ctx.Done():
-			break Loop
+	for msg := range claim.Messages() {
+		if h.MsgFunc != nil && msg != nil {
+			metadata := ""
+			metadata = h.MsgFunc(msg)
+			sess.MarkMessage(msg, metadata)
 		}
 	}
-	return nil
 }
 
 func (c *Client) ConsumeWithGroupAndCbFunc(ctx context.Context, msgFunc func(message *sarama.ConsumerMessage) (metadata string), errFunc func(err error)) error {
