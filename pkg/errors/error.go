@@ -35,7 +35,7 @@ func NewError(kind *kind, codeAndErr ...interface{}) *Error {
 		case string:
 			e.err = fmt.Errorf(p)
 		case error:
-			e.err = p
+			e.err = fmt.Errorf(p.Error())
 		}
 	}
 	if e.code == 0 {
