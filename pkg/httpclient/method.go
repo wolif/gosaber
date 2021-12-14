@@ -29,15 +29,15 @@ func makeOptionsDefault(opts ...*Option) *Option {
 func DoMethod(method Method, url string, otherParams ...interface{}) (*Calling, error) {
 	calling := New(url).Method(method)
 	for _, param := range otherParams {
-		switch param.(type) {
+		switch p := param.(type) {
 		case []byte, string, io.Reader:
-			calling.Body(param)
+			calling.Body(p)
 		case context.Context:
-			calling.Context(param.(context.Context))
+			calling.Context(p)
 		case http.Header:
-			calling.Header(param.(http.Header))
+			calling.Header(p)
 		case *Option:
-			calling.Option(param.(*Option))
+			calling.Option(p)
 		}
 	}
 	err := calling.Do()

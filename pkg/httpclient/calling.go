@@ -22,6 +22,14 @@ type Calling struct {
 	respBody []byte
 }
 
+func New(url ...string) *Calling {
+	c := new(Calling).init()
+	if len(url) > 0 {
+		c.Url(url[0])
+	}
+	return c
+}
+
 func (c *Calling) init() *Calling {
 	c.ctx = context.TODO()
 	c.method = GET
@@ -33,14 +41,6 @@ func (c *Calling) init() *Calling {
 	c.request = nil
 	c.response = nil
 	c.respBody = nil
-	return c
-}
-
-func New(url ...string) *Calling {
-	c := new(Calling).init()
-	if len(url) > 0 {
-		c.Url(url[0])
-	}
 	return c
 }
 
@@ -79,13 +79,13 @@ func (c *Calling) Header(headers ...interface{}) *Calling {
 			}
 		}
 	} else if len(headers) == 1 {
-		switch headers[0].(type) {
+		switch header := headers[0].(type) {
 		case map[string]string:
-			for k, v := range headers[0].(map[string]string) {
+			for k, v := range header {
 				c.Header(k, v)
 			}
 		case http.Header:
-			c.header = headers[0].(http.Header)
+			c.header = header
 		}
 	}
 	return c
@@ -100,13 +100,13 @@ func (c *Calling) GetHeaderByKey(key string) string {
 }
 
 func (c *Calling) Body(body interface{}) *Calling {
-	switch body.(type) {
+	switch b := body.(type) {
 	case io.Reader:
-		c.body = body.(io.Reader)
+		c.body = b
 	case string:
-		c.body = strings.NewReader(body.(string))
+		c.body = strings.NewReader(b)
 	case []byte:
-		c.body = bytes.NewReader(body.([]byte))
+		c.body = bytes.NewReader(b)
 	default:
 		panic("httpbody should be []byte or string")
 	}
