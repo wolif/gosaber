@@ -1,4 +1,4 @@
-package jsonrpc2_0
+package jsonrpc20
 
 type Protocol interface {
 	Encode(data interface{}) ([]byte, error)

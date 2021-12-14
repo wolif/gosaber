@@ -2,37 +2,103 @@ package ref
 
 import "reflect"
 
-func (e *entry) IsInt() bool {
-	return IsInScope(e.refType.kind, reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64)
+func (e *Entry)  IsKind(kind reflect.Kind) bool {
+	return e.kind == kind
 }
-func (e *entry) IsUint() bool {
-	return IsInScope(e.refType.kind, reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64)
+
+func (e *Entry) IsKindIn(kinds ...reflect.Kind) bool {
+	for _, k := range kinds {
+		if k == e.kind {
+			return true
+		}
+	}
+	return false
 }
-func (e *entry) IsFloat() bool {
-	return IsInScope(e.refType.kind, reflect.Float32, reflect.Float64)
+
+func (e *Entry) IsOriKind(kind reflect.Kind) bool {
+	return e.oriKind == kind
 }
-func (e *entry) IsNumber() bool {
+
+func (e *Entry) IsOriKindIn(kinds ...reflect.Kind) bool {
+	for _, k := range kinds {
+		if k == e.oriKind {
+			return true
+		}
+	}
+	return false
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+func (e *Entry) IsInt() bool {
+	return e.IsKindIn(reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64)
+}
+
+func (e *Entry) IsUint() bool {
+	return e.IsKindIn(reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64)
+}
+
+func (e *Entry) IsFloat() bool {
+	return e.IsKindIn(reflect.Float32, reflect.Float64)
+}
+
+func (e *Entry) IsNumber() bool {
 	return e.IsInt() || e.IsUint() || e.IsFloat()
 }
-func (e *entry) IsString() bool {
-	return e.refType.kind == reflect.String
+
+func (e *Entry) IsString() bool {
+	return e.IsKindIn(reflect.String)
 }
-func (e *entry) IsStringOrNumber() bool {
+
+func (e *Entry) IsStringOrNumber() bool {
 	return e.IsString() || e.IsNumber()
 }
 
-func (e *entry) IsPtr() bool {
-	return e.refType.originKind == reflect.Ptr
+func (e *Entry) IsComplex() bool {
+	return e.IsKindIn(reflect.Complex64, reflect.Complex128)
 }
-func (e *entry) IsSlice() bool {
-	return e.refType.kind == reflect.Slice
+
+func (e *Entry) IsBool() bool {
+	return e.IsKind(reflect.Bool)
 }
-func (e *entry) IsMap() bool {
-	return e.refType.kind == reflect.Map
+
+// ---------------------------------------------------------------------------------------------------------------------
+func (e *Entry) IsSlice() bool {
+	return e.IsKind(reflect.Slice)
 }
-func (e *entry) IsStruct() bool {
-	return e.refType.kind == reflect.Struct
+
+func (e *Entry) IsMap() bool {
+	return e.IsKind(reflect.Map)
 }
-func (e *entry) IsFunc() bool {
-	return e.refType.kind == reflect.Func
+
+func (e *Entry) IsStruct() bool {
+	return e.IsKind(reflect.Struct)
+}
+
+func (e *Entry) IsFunc() bool {
+	return e.IsKind(reflect.Func)
+}
+
+func (e *Entry) IsArray() bool {
+	return e.IsKind(reflect.Array)
+}
+
+func (e *Entry) IsChan() bool {
+	return e.IsKind(reflect.Chan)
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+func (e *Entry) IsInterface() bool {
+	return e.IsOriKind(reflect.Interface)
+}
+
+func (e *Entry) IsPtr() bool {
+	return e.IsOriKind(reflect.Ptr)
+}
+
+func (e *Entry) IsUintPtr() bool {
+	return e.IsOriKind(reflect.Uintptr)
+}
+
+func (e *Entry) IsUnsafePointer() bool {
+	return e.IsOriKind(reflect.UnsafePointer)
 }

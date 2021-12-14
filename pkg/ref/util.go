@@ -9,16 +9,20 @@ func PeelOffPtr(i interface{}) interface{} {
 	return i
 }
 
-func IsInScope(i interface{}, scope ...interface{}) bool {
+func Is(o1, o2 interface{}) bool {
+	return o1 == o2
+}
+
+func IsIn(o interface{}, scope ...interface{}) bool {
 	for _, s := range scope {
-		if i == s {
+		if o == s {
 			return true
 		}
 	}
 	return false
 }
 
-func IsInSlice(i interface{}, slice interface{}) bool {
+func IsInSlice(o interface{}, slice interface{}) bool {
 	if reflect.TypeOf(slice).Kind() != reflect.Slice {
 		return false
 	}
@@ -29,10 +33,10 @@ func IsInSlice(i interface{}, slice interface{}) bool {
 		return false
 	}
 
-	scope := make([]interface{}, sliceLen, sliceLen)
 	for i := 0; i < sliceLen; i++ {
-		scope[i] = sliceVal.Index(i).Interface()
+		if o == sliceVal.Index(i).Interface() {
+			return true
+		}
 	}
-
-	return IsInScope(i, scope...)
+	return false
 }

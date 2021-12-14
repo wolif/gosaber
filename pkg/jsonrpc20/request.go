@@ -1,6 +1,6 @@
-package jsonrpc2_0
+package jsonrpc20
 
-import "github.com/wolif/gosaber/pkg/jsonrpc2_0/utils/idgen"
+import "github.com/wolif/gosaber/pkg/jsonrpc20/utils/idgen"
 
 type Request struct {
 	JsonRpc string      `json:"jsonrpc"`

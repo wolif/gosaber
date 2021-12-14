@@ -8,8 +8,6 @@ import (
 
 var (
 	Path     string
-	confName string
-	Test     = flag.Bool("t", false, "test conf file")
 )
 
 func init() {

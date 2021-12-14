@@ -1,8 +1,8 @@
-package jsonrpc2_0
+package jsonrpc20
 
 import (
-	"github.com/wolif/gosaber/pkg/jsonrpc2_0/protocol"
-	"github.com/wolif/gosaber/pkg/jsonrpc2_0/transport"
+	"github.com/wolif/gosaber/pkg/jsonrpc20/protocol"
+	"github.com/wolif/gosaber/pkg/jsonrpc20/transport"
 	"time"
 )
 
