@@ -3,7 +3,7 @@ package proc
 import (
 	"context"
 	"fmt"
-	"github.com/wolif/gosaber/pkg/log"
+	"log"
 	"os"
 	"os/signal"
 	"sync"
@@ -37,7 +37,7 @@ func (p *process) NewWorker(name string, fn func(w *Worker)) *process {
 
 func (p *process) NewWorkers(name string, fn func(w *Worker), numWorker ...int) *process {
 	num := 1
-	if len(numWorker) > 0 && numWorker[0] > 0{
+	if len(numWorker) > 0 && numWorker[0] > 0 {
 		num = numWorker[0]
 	}
 	if num == 1 {
@@ -74,13 +74,13 @@ func (p *process) Wait() {
 	signal.Notify(signalChan, syscall.SIGHUP, syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGINT)
 	for {
 		sign := <-signalChan
-		log.Infof("process get a signal %s", sign.String())
+		log.Printf("process get a signal %s", sign.String())
 		switch sign {
 		case syscall.SIGHUP:
 		case syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGINT:
 			p.ctxCancel()
 			p.WG.Wait()
-			log.Infof("workers all done, now process done")
+			log.Printf("workers all done, now process done")
 			return
 		}
 	}

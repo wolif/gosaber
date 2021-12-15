@@ -4,7 +4,6 @@ import (
 	"context"
 	"io"
 	"net/http"
-	"time"
 )
 
 type Method = string
@@ -15,13 +14,6 @@ const (
 	PUT    Method = "PUT"
 	DELETE Method = "DELETE"
 )
-
-func makeOptionsDefault(opts ...*Option) *Option {
-	if len(opts) > 0 {
-		return opts[0]
-	}
-	return NewOption().SetTimeout(time.Second * 2)
-}
 
 /**
  * otherParams type: []byte: body | string: body | io.Reader: body | context.Context: | http.Header | Option

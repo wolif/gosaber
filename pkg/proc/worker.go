@@ -3,7 +3,7 @@ package proc
 import (
 	"context"
 	"fmt"
-	"github.com/wolif/gosaber/pkg/log"
+	"log"
 	"sync"
 	"time"
 )
@@ -49,11 +49,11 @@ func (w *Worker) RunInterval() {
 	go func(w *Worker) {
 		w.WG.Add(1)
 		defer w.WG.Done()
-		log.Infof("worker [ %s ] started", w.Name)
+		log.Printf("worker [ %s ] started", w.Name)
 		for {
 			select {
 			case <-w.StopCtx.Done():
-				log.Infof("worker [ %s ] stopped", w.Name)
+				log.Printf("worker [ %s ] stopped", w.Name)
 				return
 			case <-time.After(w.Interval):
 				w.Fn(w)
