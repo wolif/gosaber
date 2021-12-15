@@ -1,4 +1,4 @@
-package errors
+package errors1
 
 type Err interface {
 	Kind() *Kind

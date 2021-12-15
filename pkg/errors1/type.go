@@ -1,4 +1,4 @@
-package errors
+package errors1
 
 type Type struct {
 	Kind    *Kind

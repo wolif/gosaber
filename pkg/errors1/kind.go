@@ -1,4 +1,4 @@
-package errors
+package errors1
 
 type Kind struct {
 	Name    string
