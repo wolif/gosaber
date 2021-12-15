@@ -2,8 +2,8 @@ package httpclient
 
 import (
 	"context"
-	"fmt"
 	"net/http"
+	"net/http/cookiejar"
 )
 
 func (c *Calling) reDoInit() *Calling {
@@ -21,23 +21,28 @@ func (c *Calling) Do(ctx ...context.Context) error {
 		c.Context(ctx[0])
 	}
 
-	if c.GetUrl() == "" {
-		return fmt.Errorf("url has not set")
+	if c.GetUrl() == nil {
+		return errorf("url has not set")
+	}
+
+	if len(c.GetCookies()) > 0 {
+		jar, _ := cookiejar.New(nil)
+		jar.SetCookies(c.GetUrl(), c.GetCookies())
 	}
 
 	if c.GetRequest() == nil {
-		request, err := http.NewRequestWithContext(c.GetContext(), c.GetMethod(), c.GetUrl(), c.GetBody())
+		request, err := http.NewRequestWithContext(c.GetContext(), c.GetMethod(), c.GetUrl().String(), c.GetBody())
 		if err != nil {
-			return err
+			return errorf(err)
 		}
 		c.Request(request)
 	}
 
-	c.fillOptions(c.GetClient(), c.GetRequest())
+	c.fillOptions()
 	var err error
 	c.response, err = c.GetClient().Do(c.GetRequest())
 	if err != nil {
-		return err
+		return errorf(err)
 	}
 	return nil
 }

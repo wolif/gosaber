@@ -7,7 +7,7 @@ import (
 
 func (c *Calling) judgeResponse() {
 	if c.response == nil {
-		panic("the calling has't been done")
+		panic(errorf("the calling has't been done"))
 	}
 }
 
@@ -37,7 +37,7 @@ func (c *Calling) GetRespBody() ([]byte, error) {
 		defer c.GetResponse().Body.Close()
 		bs, err := ioutil.ReadAll(c.GetResponse().Body)
 		if err != nil {
-			return nil, err
+			return nil, errorf(err)
 		}
 		c.respBody = bs
 	}
@@ -47,7 +47,7 @@ func (c *Calling) GetRespBody() ([]byte, error) {
 func (c *Calling) GetRespBodyString() (string, error) {
 	bs, err := c.GetRespBody()
 	if err != nil {
-		return "", err
+		return "", errorf(err)
 	}
-	return string(bs), err
+	return string(bs), nil
 }

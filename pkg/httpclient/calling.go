@@ -5,14 +5,16 @@ import (
 	"context"
 	"io"
 	"net/http"
+	"net/url"
 	"strings"
 )
 
 type Calling struct {
 	ctx      context.Context
 	method   string
-	url      string
+	url      *url.URL
 	header   http.Header
+	cookies  []*http.Cookie
 	body     io.Reader
 	option   *Option
 	client   *http.Client
@@ -32,8 +34,9 @@ func New(url ...string) *Calling {
 func (c *Calling) init() *Calling {
 	c.ctx = context.TODO()
 	c.method = GET
-	c.url = ""
+	c.url = nil
 	c.header = http.Header{}
+	c.cookies = make([]*http.Cookie, 0)
 	c.body = bytes.NewReader([]byte{})
 	c.option = nil
 	c.client = new(http.Client)
@@ -61,12 +64,24 @@ func (c *Calling) GetMethod() Method {
 	return c.method
 }
 
-func (c *Calling) Url(url string) *Calling {
-	c.url = url
+func (c *Calling) Url(u ...interface{}) *Calling {
+	if len(u) == 0 {
+		return c
+	}
+	switch p := u[0].(type) {
+	case string:
+		var err error
+		c.url, err = url.Parse(p)
+		if err != nil {
+			panic(errorf("set url [%s] error: %s", p, err.Error()))
+		}
+	case *url.URL:
+		c.url = p
+	}
 	return c
 }
 
-func (c *Calling) GetUrl() string {
+func (c *Calling) GetUrl() *url.URL {
 	return c.url
 }
 
@@ -98,6 +113,15 @@ func (c *Calling) GetHeaderByKey(key string) string {
 	return c.header.Get(key)
 }
 
+func (c *Calling) Cookie(cookie *http.Cookie) *Calling {
+	c.cookies = append(c.cookies, cookie)
+	return c
+}
+
+func (c *Calling) GetCookies() []*http.Cookie {
+	return c.cookies
+}
+
 func (c *Calling) Body(body interface{}) *Calling {
 	switch b := body.(type) {
 	case io.Reader:
@@ -107,7 +131,7 @@ func (c *Calling) Body(body interface{}) *Calling {
 	case []byte:
 		c.body = bytes.NewReader(b)
 	default:
-		panic("httpbody should be []byte or string")
+		panic(errorf("http body should be []byte | string | io.reader"))
 	}
 	return c
 }
@@ -141,4 +165,15 @@ func (c *Calling) Request(request *http.Request) *Calling {
 
 func (c *Calling) GetRequest() *http.Request {
 	return c.request
+}
+
+func (c *Calling) fillOptions() *Calling {
+	c.request.Header = c.header
+	if c.option == nil {
+		return c
+	}
+	if c.option.Timeout != nil {
+		c.client.Timeout = *c.option.Timeout
+	}
+	return c
 }

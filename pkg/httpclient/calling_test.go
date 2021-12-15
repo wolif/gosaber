@@ -5,28 +5,15 @@ import (
 )
 
 func TestClient(t *testing.T) {
-	calling, err := Get("http://cn.bing.com")
+	calling := New("mysql://towngas_vod_rw:abcdef@10.20.1.20:3306/towngas_vod?charset=utf8mb4&parseTime=True&loc=Asia%2FShanghai#abc")
+	//t.Logf("%v", calling.GetUrl())
+	calling.GetUrl().Host = "abc.com:123"
+	t.Log(calling.GetUrl())
+
+	calling1, err := Get("http://cn.bing.com")
 	if err != nil {
 		t.Error(err)
-		return
 	} else {
-		t.Log(calling.GetRespStatusCode())
-		t.Log(calling.GetRespBodyString())
+		t.Log(calling1.GetRespBodyString())
 	}
-
-	// 	body := `{
-	// 	"jsonrpc":"2.0",
-	// 	"method": "Catalog\\Area.parent",
-	// 	"params": [
-	// 		246
-	// 	]
-	// }`
-	// calling, err = Post("http://catalog-service.dev.tgs.com", body)
-	// if err != nil {
-	// 	t.Error(err)
-	// 	return
-	// } else {
-	// 	t.Log(calling.GetRespStatusCode())
-	// 	t.Log(calling.GetRespBodyString())
-	// }
 }
