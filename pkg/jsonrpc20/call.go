@@ -33,6 +33,11 @@ func (c *Call) SetParams(params ...interface{}) *Call {
 	return c
 }
 
+func (c *Call) SetParam(param interface{}) *Call {
+	c.request.SetParam(param)
+	return c
+}
+
 func (c *Call) Invoke(ctx context.Context, params ...interface{}) error {
 	if len(params) > 0 {
 		c.SetParams(params...)

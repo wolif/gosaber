@@ -27,16 +27,15 @@ func (r *Request) SetMethod(method string) *Request {
 }
 
 func (r *Request) SetParams(params ...interface{}) *Request {
-	l := len(params)
-	if l == 0 {
+	if len(params) == 0 {
 		return r
 	}
-	if l == 1 {
-		r.Params = params[0]
-	} else {
-		r.Params = params
-	}
+	r.Params = params
+	return r
+}
 
+func (r *Request) SetParam(param interface{}) *Request {
+	r.Params = param
 	return r
 }
 

@@ -51,7 +51,7 @@ func TestClient_CallBatch(t *testing.T) {
 		}
 	}
 
-	call := client.Call("Catalog\\Area.parent", 246)
+	call := client.Call("Catalog\\Area.parent").SetParam(246)
 	err = call.Invoke(context.TODO())
 	if err !=nil {
 		t.Error(err)
