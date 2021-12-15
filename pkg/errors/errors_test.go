@@ -3,19 +3,20 @@ package errors
 import "testing"
 
 func TestKind(t *testing.T) {
-	serverErr := NewKind("server error", 10000, "server error occur")
-	methodNotFoundErr := serverErr.Extend("method not found error", 10001, "method [] not found")
+	eKind1 := NewBaseKind("kind1", 1, "error kind1 occur")
+	eKind1Err1 := eKind1.Error("error kind1 error1", 11)
+	eKind1Err2 := eKind1.Errorf("error %d occur", 1)
+	t.Log(eKind1Err1.Code(), eKind1Err1.Error())
+	t.Log(eKind1Err2.Code(), eKind1Err2.Error())
 
-	se1 := serverErr.Error()
-	// se2 := serverErr.NewError(10010, "se2 error")
+	eKind1_1 := eKind1.Extend("kind1_1", 2, "error kind1_1 occur")
+	eKind1_1Err1 := eKind1_1.Error(22)
+	t.Log(eKind1_1Err1.Code(), eKind1_1Err1.Error())
 
-	// t.Log(se1.Code(), se1.Error())
-	// t.Log(se2.Code(), se2.Error())
+	t.Log(eKind1_1Err1.IsKind(eKind1_1))
+	t.Log(eKind1_1Err1.IsKind(eKind1))
 
-	mnfe := methodNotFoundErr.Error("method mnfe not found")
-	// t.Log(mnfe.Code(), mnfe.Error())
-
-	t.Log(mnfe.IsKind(serverErr))
-	t.Log(mnfe.IsKind(methodNotFoundErr))
-	t.Log(se1.IsKind(methodNotFoundErr))
+	eKind2 := NewBaseKind("kind2", 2, "error kind2 occur")
+	t.Log(eKind1Err1.IsKind(eKind2))
+	t.Log(eKind1_1Err1.IsKind(eKind2))
 }

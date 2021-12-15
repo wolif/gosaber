@@ -4,7 +4,7 @@ import "fmt"
 
 type Error struct {
 	kind *kind
-	code int64
+	code *int64
 	err  error
 }
 
@@ -17,7 +17,7 @@ func (e *Error) IsKind(kind *kind) bool {
 }
 
 func (e *Error) Code() int64 {
-	return e.code
+	return *(e.code)
 }
 
 func (e *Error) Error() string {
@@ -29,20 +29,21 @@ func NewError(kind *kind, codeAndErr ...interface{}) *Error {
 	for _, param := range codeAndErr {
 		switch p := param.(type) {
 		case int:
-			e.code = int64(p)
+			c := int64(p)
+			e.code = &c
 		case int64:
-			e.code = p
+			e.code = &p
 		case string:
 			e.err = fmt.Errorf(p)
 		case error:
 			e.err = fmt.Errorf(p.Error())
 		}
 	}
-	if e.code == 0 {
+	if e.code == nil {
 		e.code = e.kind.codeDef
 	}
 	if e.err == nil {
-		e.err = fmt.Errorf(e.kind.errMsgDef)
+		e.err = fmt.Errorf(*(e.kind.errMsgDef))
 	}
 	return e
 }
