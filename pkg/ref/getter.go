@@ -2,34 +2,34 @@ package ref
 
 import "reflect"
 
-func (e *Entry) GetOriData() interface{} {
+func (e *Entity) GetOriData() interface{} {
 	return e.oriData
 }
 
-func (e *Entry) GetOriType() reflect.Type {
+func (e *Entity) GetOriType() reflect.Type {
 	return e.oriTyp
 }
 
-func (e *Entry) GetOriValue() reflect.Value {
+func (e *Entity) GetOriValue() reflect.Value {
 	return e.oriVal
 }
 
-func (e *Entry) GetOriKind() reflect.Kind {
+func (e *Entity) GetOriKind() reflect.Kind {
 	return e.oriKind
 }
 
-func (e *Entry) GetData() interface{} {
+func (e *Entity) GetData() interface{} {
 	return e.data
 }
 
-func (e *Entry) GetType() reflect.Type {
+func (e *Entity) GetType() reflect.Type {
 	return e.typ
 }
 
-func (e *Entry) GetValue() reflect.Value {
+func (e *Entity) GetValue() reflect.Value {
 	return e.val
 }
 
-func (e *Entry) GetKind() reflect.Kind {
+func (e *Entity) GetKind() reflect.Kind {
 	return e.kind
 }

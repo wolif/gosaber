@@ -1,6 +1,6 @@
 package ref
 
-func (e *Entry) initVMap() (ok bool) {
+func (e *Entity) initVMap() (ok bool) {
 	if !e.IsMap() {
 		return false
 	}
@@ -13,7 +13,7 @@ func (e *Entry) initVMap() (ok bool) {
 	return true
 }
 
-func (e *Entry) MapKeys() (keys []interface{}, ok bool) {
+func (e *Entity) MapKeys() (keys []interface{}, ok bool) {
 	if ok := e.initVMap(); !ok {
 		return nil, false
 	}
@@ -24,7 +24,7 @@ func (e *Entry) MapKeys() (keys []interface{}, ok bool) {
 	return keys, true
 }
 
-func (e *Entry) MapHas(key interface{}) bool {
+func (e *Entity) MapHas(key interface{}) bool {
 	if ok := e.initVMap(); !ok {
 		return false
 	}
@@ -32,7 +32,7 @@ func (e *Entry) MapHas(key interface{}) bool {
 	return ok
 }
 
-func (e *Entry) MapGet(key interface{}) (value interface{}, ok bool) {
+func (e *Entity) MapGet(key interface{}) (value interface{}, ok bool) {
 	if e.initVMap() {
 		value, ok = e.vMap[key]
 		return
@@ -40,7 +40,7 @@ func (e *Entry) MapGet(key interface{}) (value interface{}, ok bool) {
 	return
 }
 
-func (e *Entry) MapLen() (l int, ok bool) {
+func (e *Entity) MapLen() (l int, ok bool) {
 	if e.initVMap() {
 		return len(e.vMap), true
 	}

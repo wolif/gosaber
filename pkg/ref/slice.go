@@ -1,6 +1,6 @@
 package ref
 
-func (e *Entry) SliceGet(index int) (interface{}, bool) {
+func (e *Entity) SliceGet(index int) (interface{}, bool) {
 	if e.IsSlice() {
 		if index >= e.GetValue().Len() {
 			return nil, false
@@ -10,7 +10,7 @@ func (e *Entry) SliceGet(index int) (interface{}, bool) {
 	return nil, false
 }
 
-func (e *Entry) SliceLen() (int, bool) {
+func (e *Entity) SliceLen() (int, bool) {
 	if e.IsSlice() {
 		return e.GetValue().Len(), true
 	}

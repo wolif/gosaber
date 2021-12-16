@@ -2,7 +2,7 @@ package ref
 
 import "reflect"
 
-type Entry struct {
+type Entity struct {
 	oriData interface{}
 	oriVal  reflect.Value
 	oriTyp  reflect.Type
@@ -19,8 +19,8 @@ type Entry struct {
 	vStructMethods map[string]*reflect.Method
 }
 
-func New(o interface{}) *Entry {
-	e := new(Entry)
+func New(o interface{}) *Entity {
+	e := new(Entity)
 	e.oriData = o
 	e.oriVal = reflect.ValueOf(e.oriData)
 	e.oriTyp = e.oriVal.Type()

@@ -2,7 +2,7 @@ package ref
 
 import "reflect"
 
-func (e *Entry) initStructFields() bool {
+func (e *Entity) initStructFields() bool {
 	if e.vStructFields != nil {
 		return true
 	}
@@ -17,14 +17,14 @@ func (e *Entry) initStructFields() bool {
 	return true
 }
 
-func (e *Entry) StructFields() (map[string]*reflect.StructField, bool) {
+func (e *Entity) StructFields() (map[string]*reflect.StructField, bool) {
 	if !e.initStructFields() {
 		return nil, false
 	}
 	return e.vStructFields, true
 }
 
-func (e *Entry) StructFieldsName() ([]string, bool) {
+func (e *Entity) StructFieldsName() ([]string, bool) {
 	if !e.initStructFields() {
 		return nil, false
 	}
@@ -35,7 +35,7 @@ func (e *Entry) StructFieldsName() ([]string, bool) {
 	return ret, true
 }
 
-func (e *Entry) StructFieldGet(name string) (field *reflect.StructField, ok bool) {
+func (e *Entity) StructFieldGet(name string) (field *reflect.StructField, ok bool) {
 	if e.initStructFields() {
 		field, ok = e.vStructFields[name]
 		return

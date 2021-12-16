@@ -1,6 +1,6 @@
 package ref
 
-func (e *Entry) StructTagGet(fieldName, tagName string) (tag string, ok bool) {
+func (e *Entity) StructTagGet(fieldName, tagName string) (tag string, ok bool) {
 	field, ok := e.StructFieldGet(fieldName)
 	if !ok {
 		return

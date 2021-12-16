@@ -1,6 +1,6 @@
 package ref
 
-func (e *Entry) initStructValues() bool {
+func (e *Entity) initStructValues() bool {
 	if e.vStructValues != nil {
 		return true
 	}
@@ -14,14 +14,14 @@ func (e *Entry) initStructValues() bool {
 	return true
 }
 
-func (e *Entry) StructValues() (map[string]interface{}, bool) {
+func (e *Entity) StructValues() (map[string]interface{}, bool) {
 	if !e.initStructValues() {
 		return nil, false
 	}
 	return e.vStructValues, true
 }
 
-func (e *Entry) StructValueGet(name string) (value interface{}, ok bool) {
+func (e *Entity) StructValueGet(name string) (value interface{}, ok bool) {
 	if e.initStructValues() {
 		value, ok = e.vStructValues[name]
 		return

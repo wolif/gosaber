@@ -5,7 +5,7 @@ import (
 	"reflect"
 )
 
-func (e *Entry) initStructMethods() bool {
+func (e *Entity) initStructMethods() bool {
 	if e.vStructMethods != nil {
 		return true
 	}
@@ -20,14 +20,14 @@ func (e *Entry) initStructMethods() bool {
 	return true
 }
 
-func (e *Entry) StructMethods() (methods map[string]*reflect.Method, ok bool) {
+func (e *Entity) StructMethods() (methods map[string]*reflect.Method, ok bool) {
 	if e.initStructMethods() {
 		return e.vStructMethods, true
 	}
 	return nil, false
 }
 
-func (e *Entry) StructMethodGet(name string) (method *reflect.Method, ok bool) {
+func (e *Entity) StructMethodGet(name string) (method *reflect.Method, ok bool) {
 	if e.initStructMethods() {
 		method, ok = e.vStructMethods[name]
 		return
@@ -35,7 +35,7 @@ func (e *Entry) StructMethodGet(name string) (method *reflect.Method, ok bool) {
 	return nil, false
 }
 
-func (e *Entry) StructMethodCall(methodName string, args ...interface{}) (result []interface{}, err error) {
+func (e *Entity) StructMethodCall(methodName string, args ...interface{}) (result []interface{}, err error) {
 	method, ok := e.StructMethodGet(methodName)
 	if !ok {
 		return nil, fmt.Errorf("method with name %s not found", methodName)
