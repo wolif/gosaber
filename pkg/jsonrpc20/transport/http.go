@@ -2,9 +2,9 @@ package transport
 
 import (
 	"context"
-	"fmt"
-	"github.com/wolif/gosaber/pkg/httpclient"
 	"time"
+
+	"github.com/wolif/gosaber/pkg/httpclient"
 )
 
 type Http struct {
@@ -24,7 +24,7 @@ func (h *Http) Send(ctx context.Context, reqData []byte, header ...interface{}) 
 	}
 	err = calling.Do()
 	if err != nil {
-		return nil, fmt.Errorf("do http request error: %s", err.Error())
+		return nil, err
 	}
 	return calling.GetRespBody()
 }
