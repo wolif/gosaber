@@ -14,8 +14,9 @@ var cache = make(map[reflect.Type]map[string]map[string]map[string]string)
 var mu sync.Mutex
 
 // 解析结构的中所有字段的某种tag
-// exp. `tagName:"a:1,b:2,c:3"` => map[string][string]string{"id":map[string]string{"a":"1","b":"2","c":"3"}}
+// exp. `tagName:"valWithoutKey,a:1,b:2,c:3"` => map[string][string]string{"id":map[string]string{"":"valWithoutKey","a":"1","b":"2","c":"3"}}
 // 如果tag不存在,不会填充 defResult
+// 特殊值,key为空字符串的值,只能有一个, 多个的话,后面的覆盖前面的
 func Parse(structObj interface{}, tagName string, defResults ...map[string]string) (map[string]map[string]string, error) {
 	refObj := ref.New(structObj)
 	if !refObj.IsStruct() {
@@ -56,10 +57,11 @@ func Parse(structObj interface{}, tagName string, defResults ...map[string]strin
 				continue
 			}
 			kvSlice := strings.SplitN(kv, ":", 2)
-			if len(kvSlice) == 1 {
-				continue
-			}
-			if tagFiledName := strings.TrimSpace(kvSlice[0]); tagFiledName != "" {
+			if len(kvSlice) == 1 { // 无key值
+				if len(strings.TrimSpace(kvSlice[0])) > 0 {
+					oneFieldRes[""] = strings.TrimSpace(kvSlice[0])
+				}
+			} else if tagFiledName := strings.TrimSpace(kvSlice[0]); tagFiledName != "" {
 				oneFieldRes[tagFiledName] = strings.TrimSpace(kvSlice[1])
 			}
 		}

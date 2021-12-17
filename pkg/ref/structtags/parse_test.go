@@ -3,8 +3,8 @@ package structtags
 import "testing"
 
 type ts struct {
-	ID int64 `search:""`
-	IDs []int64 `search:"field:id,op: in"`
+	ID int64 `search:"asdf"`
+	IDs []int64 `search:"d,op: in"`
 }
 
 func TestSearch(t *testing.T) {
