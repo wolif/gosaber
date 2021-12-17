@@ -61,8 +61,9 @@ func (w *Worker) RunInterval() {
 	w.checkBeforeRun()
 	w.emitPEv(PEvWorkerBeforeStart)
 	w.emitEv(WEventBeforeStart, w)
+
+	w.WG.Add(1)
 	go func(w *Worker) {
-		w.WG.Add(1)
 		defer w.WG.Done()
 		for {
 			select {

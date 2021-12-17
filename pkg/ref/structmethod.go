@@ -53,7 +53,7 @@ func (e *Entity) StructMethodCall(methodName string, args ...interface{}) (resul
 		params = append(params, reflect.ValueOf(args[i-1]))
 	}
 	oriRes := method.Func.Call(params)
-	result = make([]interface{}, len(oriRes), len(oriRes))
+	result = make([]interface{}, len(oriRes))
 	for i, r := range oriRes {
 		result[i] = r.Interface()
 	}

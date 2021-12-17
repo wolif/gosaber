@@ -15,27 +15,23 @@ type process struct {
 	ctxCancel context.CancelFunc
 	workers   map[string]*Worker
 	events    map[pEvent]func(proc *process, work *Worker, others ...interface{})
+	signalsDo map[os.Signal]func(proc *process) bool
 }
 
 func New() *process {
 	ctx, ctxCancel := context.WithCancel(context.TODO())
-	return &process{
-		WG:        new(sync.WaitGroup),
-		Ctx:       ctx,
-		ctxCancel: ctxCancel,
-		workers:   make(map[string]*Worker),
-		events:    make(map[pEvent]func(proc *process, work *Worker, others ...interface{})),
-	}
+	return NewWithContext(new(sync.WaitGroup), ctx, ctxCancel)
 }
 
 func NewWithContext(wg *sync.WaitGroup, ctx context.Context, ctxCancel context.CancelFunc) *process {
-	return &process{
+	return (&process{
 		WG:        wg,
 		Ctx:       ctx,
 		ctxCancel: ctxCancel,
 		workers:   make(map[string]*Worker),
 		events:    make(map[pEvent]func(proc *process, work *Worker, others ...interface{})),
-	}
+		signalsDo: make(map[os.Signal]func(proc *process) bool),
+	}).ListenDefault()
 }
 
 func (p *process) NewWorker(name string, fn func(w *Worker)) *process {
@@ -81,30 +77,43 @@ func (p *process) RunInterval() *process {
 	return p
 }
 
-func (p *process) Wait() {
-	p.Listen(func(sign os.Signal) bool {
-		switch sign {
-		case syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGINT:
-			p.ctxCancel()
-			p.WG.Wait()
-			p.emitEv(PEvProcBeforeExit, p, nil)
-			return true
-		}
-		return false
-	})
+func (p *process) Listen(signals []os.Signal, fn func(proc *process) bool) *process {
+	if p.signalsDo == nil {
+		p.signalsDo = make(map[os.Signal]func(proc *process) bool)
+	}
+	for _, sign := range signals {
+		p.signalsDo[sign] = fn
+	}
+	return p
 }
 
-func (p *process) Listen(fn func(sign os.Signal) bool, signals ...os.Signal) {
-	if len(signals) == 0 {
-		signals = []os.Signal{syscall.SIGHUP, syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGINT}
+func (p *process) ListenDefault() *process {
+	p.Listen([]os.Signal{syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGINT}, func(proc *process) bool {
+		proc.ctxCancel()
+		proc.WG.Wait()
+		proc.emitEv(PEvProcBeforeExit, proc, nil)
+		return true
+	})
+	p.Listen([]os.Signal{syscall.SIGHUP}, func(proc *process) bool {
+		return false
+	})
+	return p
+}
+
+func (p *process) Wait() {
+	if p.signalsDo == nil || len(p.signalsDo) == 0 {
+		p.ListenDefault()
 	}
-	// 等待系统信号
+	signals := make([]os.Signal, 0)
+	for sign := range p.signalsDo {
+		signals = append(signals, sign)
+	}
 	signalChan := make(chan os.Signal, 1)
 	signal.Notify(signalChan, signals...)
 	for {
 		sign := <-signalChan
 		p.emitEv(PEvProcWhenGetSigToExit, p, nil, sign)
-		if fn(sign) {
+		if p.signalsDo[sign](p) {
 			return
 		}
 	}
