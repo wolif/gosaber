@@ -3,17 +3,18 @@ package proc
 import (
 	"context"
 	"fmt"
-	"log"
 	"sync"
 	"time"
 )
 
 type Worker struct {
+	proc     *process
 	Name     string
 	StopCtx  context.Context
 	WG       *sync.WaitGroup
 	Fn       func(w *Worker)
 	Interval time.Duration
+	events   map[wEvent]func(w *Worker, others ...interface{})
 }
 
 func NewWorker(name string, ctx context.Context, wg *sync.WaitGroup, fns ...func(w *Worker)) *Worker {
@@ -21,10 +22,22 @@ func NewWorker(name string, ctx context.Context, wg *sync.WaitGroup, fns ...func
 		Name:    name,
 		StopCtx: ctx,
 		WG:      wg,
+		events:  make(map[wEvent]func(w *Worker, others ...interface{})),
 	}
 	if len(fns) > 0 {
 		w.Fn = fns[0]
 	}
+	return w
+}
+
+func (w *Worker) emitPEv(ev pEvent) {
+	if w.proc != nil {
+		w.proc.emitEv(ev, w.proc, w)
+	}
+}
+
+func (w *Worker) setProc(p *process) *Worker {
+	w.proc = p
 	return w
 }
 
@@ -46,14 +59,16 @@ func (w *Worker) Run() {
 
 func (w *Worker) RunInterval() {
 	w.checkBeforeRun()
+	w.emitPEv(PEvWorkerBeforeStart)
+	w.emitEv(WEventBeforeStart, w)
 	go func(w *Worker) {
 		w.WG.Add(1)
 		defer w.WG.Done()
-		log.Printf("worker [ %s ] started", w.Name)
 		for {
 			select {
 			case <-w.StopCtx.Done():
-				log.Printf("worker [ %s ] stopped", w.Name)
+				w.emitPEv(PEvWorkerBeforeExit)
+				w.emitEv(WEventBeforeExit, w)
 				return
 			case <-time.After(w.Interval):
 				w.Fn(w)

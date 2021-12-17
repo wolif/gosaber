@@ -7,7 +7,7 @@ type ts struct {
 	IDs []int64 `search:"d,op: in"`
 }
 
-func TestSearch(t *testing.T) {
+func TestParse(t *testing.T) {
 	ts := &ts{ID: 123}
 	res, err := Parse(ts, "search", map[string]string{"addOp": "some", "omitEmpty": "true"})
 	if err != nil {
@@ -16,4 +16,8 @@ func TestSearch(t *testing.T) {
 	}
 
 	t.Log(res)
+}
+
+func TestParseString(t *testing.T) {
+	t.Log(ParseString("d,op: in", map[string]string{"addOp": "some", "omitEmpty": "true"}))
 }

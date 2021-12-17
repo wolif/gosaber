@@ -3,7 +3,6 @@ package proc
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 	"os/signal"
 	"sync"
@@ -15,6 +14,7 @@ type process struct {
 	Ctx       context.Context
 	ctxCancel context.CancelFunc
 	workers   map[string]*Worker
+	events    map[pEvent]func(proc *process, work *Worker, others ...interface{})
 }
 
 func New() *process {
@@ -24,6 +24,17 @@ func New() *process {
 		Ctx:       ctx,
 		ctxCancel: ctxCancel,
 		workers:   make(map[string]*Worker),
+		events:    make(map[pEvent]func(proc *process, work *Worker, others ...interface{})),
+	}
+}
+
+func NewWithContext(wg *sync.WaitGroup, ctx context.Context, ctxCancel context.CancelFunc) *process {
+	return &process{
+		WG:        wg,
+		Ctx:       ctx,
+		ctxCancel: ctxCancel,
+		workers:   make(map[string]*Worker),
+		events:    make(map[pEvent]func(proc *process, work *Worker, others ...interface{})),
 	}
 }
 
@@ -31,7 +42,7 @@ func (p *process) NewWorker(name string, fn func(w *Worker)) *process {
 	if _, isAlreadyExisted := p.GetWorkerByName(name); isAlreadyExisted {
 		panic(fmt.Sprintf("worker name [%s] duplicated!", name))
 	}
-	p.workers[name] = NewWorker(name, p.Ctx, p.WG).SetFunc(fn)
+	p.workers[name] = NewWorker(name, p.Ctx, p.WG).SetFunc(fn).setProc(p)
 	return p
 }
 
@@ -55,6 +66,7 @@ func (p *process) GetWorkerByName(name string) (*Worker, bool) {
 }
 
 func (p *process) Run() *process {
+	p.emitEv(PEvProcBeforeStart, p, nil)
 	for _, g := range p.workers {
 		g.Run()
 	}
@@ -62,6 +74,7 @@ func (p *process) Run() *process {
 }
 
 func (p *process) RunInterval() *process {
+	p.emitEv(PEvProcBeforeStart, p, nil)
 	for _, g := range p.workers {
 		g.RunInterval()
 	}
@@ -69,18 +82,29 @@ func (p *process) RunInterval() *process {
 }
 
 func (p *process) Wait() {
-	// 等待系统信号
-	signalChan := make(chan os.Signal, 1)
-	signal.Notify(signalChan, syscall.SIGHUP, syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGINT)
-	for {
-		sign := <-signalChan
-		log.Printf("process get a signal %s", sign.String())
+	p.Listen(func(sign os.Signal) bool {
 		switch sign {
-		case syscall.SIGHUP:
 		case syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGINT:
 			p.ctxCancel()
 			p.WG.Wait()
-			log.Printf("workers all done, now process done")
+			p.emitEv(PEvProcBeforeExit, p, nil)
+			return true
+		}
+		return false
+	})
+}
+
+func (p *process) Listen(fn func(sign os.Signal) bool, signals ...os.Signal) {
+	if len(signals) == 0 {
+		signals = []os.Signal{syscall.SIGHUP, syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGINT}
+	}
+	// 等待系统信号
+	signalChan := make(chan os.Signal, 1)
+	signal.Notify(signalChan, signals...)
+	for {
+		sign := <-signalChan
+		p.emitEv(PEvProcWhenGetSigToExit, p, nil, sign)
+		if fn(sign) {
 			return
 		}
 	}

@@ -2,11 +2,7 @@ package ref
 
 import "reflect"
 
-func (e *Entity)  IsKind(kind reflect.Kind) bool {
-	return e.kind == kind
-}
-
-func (e *Entity) IsKindIn(kinds ...reflect.Kind) bool {
+func (e *Entity)  IsKind(kinds ...reflect.Kind) bool {
 	for _, k := range kinds {
 		if k == e.kind {
 			return true
@@ -15,11 +11,7 @@ func (e *Entity) IsKindIn(kinds ...reflect.Kind) bool {
 	return false
 }
 
-func (e *Entity) IsOriKind(kind reflect.Kind) bool {
-	return e.oriKind == kind
-}
-
-func (e *Entity) IsOriKindIn(kinds ...reflect.Kind) bool {
+func (e *Entity) IsOriKind(kinds ...reflect.Kind) bool {
 	for _, k := range kinds {
 		if k == e.oriKind {
 			return true
@@ -30,15 +22,15 @@ func (e *Entity) IsOriKindIn(kinds ...reflect.Kind) bool {
 
 // ---------------------------------------------------------------------------------------------------------------------
 func (e *Entity) IsInt() bool {
-	return e.IsKindIn(reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64)
+	return e.IsKind(reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64)
 }
 
 func (e *Entity) IsUint() bool {
-	return e.IsKindIn(reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64)
+	return e.IsKind(reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64)
 }
 
 func (e *Entity) IsFloat() bool {
-	return e.IsKindIn(reflect.Float32, reflect.Float64)
+	return e.IsKind(reflect.Float32, reflect.Float64)
 }
 
 func (e *Entity) IsNumber() bool {
@@ -54,7 +46,7 @@ func (e *Entity) IsStringOrNumber() bool {
 }
 
 func (e *Entity) IsComplex() bool {
-	return e.IsKindIn(reflect.Complex64, reflect.Complex128)
+	return e.IsKind(reflect.Complex64, reflect.Complex128)
 }
 
 func (e *Entity) IsBool() bool {
