@@ -13,7 +13,7 @@ func Is(o1, o2 interface{}) bool {
 	return o1 == o2
 }
 
-func IsIn(o interface{}, scope ...interface{}) bool {
+func In(o interface{}, scope ...interface{}) bool {
 	for _, s := range scope {
 		if o == s {
 			return true
@@ -22,7 +22,7 @@ func IsIn(o interface{}, scope ...interface{}) bool {
 	return false
 }
 
-func IsInSlice(o interface{}, slice interface{}) bool {
+func InSlice(o interface{}, slice interface{}) bool {
 	if reflect.TypeOf(slice).Kind() != reflect.Slice {
 		return false
 	}

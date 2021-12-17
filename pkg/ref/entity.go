@@ -29,7 +29,7 @@ func New(o interface{}) *Entity {
 	e.data = PeelOffPtr(e.oriData)
 	e.val = reflect.ValueOf(e.data)
 	e.typ = e.val.Type()
-	e.kind = e.oriTyp.Kind()
+	e.kind = e.typ.Kind()
 
 	return e
 }

@@ -46,7 +46,7 @@ func (e *Entity) IsNumber() bool {
 }
 
 func (e *Entity) IsString() bool {
-	return e.IsKindIn(reflect.String)
+	return e.IsKind(reflect.String)
 }
 
 func (e *Entity) IsStringOrNumber() bool {
