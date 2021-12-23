@@ -48,14 +48,10 @@ func (cb *CallBatch) Invoke(ctx context.Context) error {
 	if err = cb.client.protocol.Decode(respData, &resps); err != nil {
 		return fmt.Errorf("can't parse response data from server, origin data:%s", string(respData))
 	}
-	respMap := make(map[int64]*Response)
-	for _, resp := range resps {
-		respMap[resp.ID] = resp
-	}
 
-	for id, resp := range respMap {
-		if _, ok := cb.calls[id]; ok {
-			cb.calls[id].response = resp
+	for _, resp := range resps{
+		if _, ok  := cb.calls[resp.ID]; ok {
+			cb.calls[resp.ID].response = resp
 		}
 	}
 	for _, call := range cb.calls {

@@ -7,20 +7,22 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 )
 
 type Calling struct {
-	ctx      context.Context
-	method   string
-	url      *url.URL
-	header   http.Header
-	cookies  []*http.Cookie
-	body     io.Reader
-	option   *Option
-	client   *http.Client
-	request  *http.Request
-	response *http.Response
-	respBody []byte
+	ctx        context.Context
+	method     string
+	url        *url.URL
+	header     http.Header
+	cookies    []*http.Cookie
+	body       io.Reader
+	option     *Option
+	client     *http.Client
+	request    *http.Request
+	response   *http.Response
+	respBody   []byte
+	timeExpend *time.Duration
 }
 
 func New(url ...string) *Calling {
@@ -43,6 +45,7 @@ func (c *Calling) init() *Calling {
 	c.request = nil
 	c.response = nil
 	c.respBody = nil
+	c.timeExpend = nil
 	return c
 }
 
@@ -165,6 +168,10 @@ func (c *Calling) Request(request *http.Request) *Calling {
 
 func (c *Calling) GetRequest() *http.Request {
 	return c.request
+}
+
+func (c *Calling) GetTimeExpend() time.Duration {
+	return *c.timeExpend
 }
 
 func (c *Calling) fillOptions() *Calling {

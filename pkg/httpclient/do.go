@@ -4,11 +4,13 @@ import (
 	"context"
 	"net/http"
 	"net/http/cookiejar"
+	"time"
 )
 
 func (c *Calling) reDoInit() *Calling {
 	c.response = nil
 	c.respBody = nil
+	c.timeExpend = nil
 	return c
 }
 
@@ -40,7 +42,10 @@ func (c *Calling) Do(ctx ...context.Context) error {
 
 	c.fillOptions()
 	var err error
+	timeStart := time.Now()
 	c.response, err = c.GetClient().Do(c.GetRequest())
+	timeExpend := time.Since(timeStart)
+	c.timeExpend = &timeExpend
 	if err != nil {
 		return errorf(err)
 	}

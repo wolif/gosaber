@@ -1,6 +1,8 @@
 package errors
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestKind(t *testing.T) {
 	eKind1 := NewBaseKind("kind1", 1, "error kind1 occur")
@@ -15,6 +17,7 @@ func TestKind(t *testing.T) {
 
 	t.Log(eKind1_1Err1.IsKind(eKind1_1))
 	t.Log(eKind1_1Err1.IsKind(eKind1))
+	t.Log(eKind1_1Err1.IsKind(eKind1, true))
 
 	eKind2 := NewBaseKind("kind2", 2, "error kind2 occur")
 	t.Log(eKind1Err1.IsKind(eKind2))

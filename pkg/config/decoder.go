@@ -2,7 +2,8 @@ package config
 
 import (
 	"flag"
-	"github.com/wolif/gosaber/pkg/config/envvariant"
+	"github.com/wolif/gosaber/pkg/config/dotenv"
+	"github.com/wolif/gosaber/pkg/config/json"
 	"github.com/wolif/gosaber/pkg/util/path"
 )
 
@@ -26,5 +27,19 @@ func LoadEnv(conf interface{}) error {
 		envPath = Path
 	}
 
-	return envvariant.Load(envPath, conf)
+	return dotenv.Load(envPath, conf)
+}
+
+func LoadJson(conf interface{}) error {
+	var jsonPath string
+	if Path == "" {
+		p, err := path.FindPath("configs/config.json", 5)
+		if err != nil {
+			return err
+		}
+		jsonPath = p
+	} else {
+		jsonPath = Path
+	}
+	return json.Load(jsonPath, conf)
 }

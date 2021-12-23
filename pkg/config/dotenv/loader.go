@@ -1,4 +1,4 @@
-package envvariant
+package dotenv
 
 import (
 	"bufio"

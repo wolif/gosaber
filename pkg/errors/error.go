@@ -1,6 +1,8 @@
 package errors
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type Error struct {
 	kind *kind
@@ -12,8 +14,8 @@ func (e *Error) Kind() *kind {
 	return e.kind
 }
 
-func (e *Error) IsKind(kind *kind) bool {
-	return e.kind.Is(kind)
+func (e *Error) IsKind(kind *kind, strict ...bool) bool {
+	return e.kind.Is(kind, strict...)
 }
 
 func (e *Error) Code() int64 {
@@ -40,10 +42,10 @@ func NewError(kind *kind, codeAndErr ...interface{}) *Error {
 		}
 	}
 	if e.code == nil {
-		e.code = e.kind.codeDef
+		e.code = e.kind.code
 	}
 	if e.err == nil {
-		e.err = fmt.Errorf(*(e.kind.errMsgDef))
+		e.err = fmt.Errorf(*(e.kind.err))
 	}
 	return e
 }

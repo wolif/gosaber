@@ -3,7 +3,7 @@ package structtags
 import "testing"
 
 type ts struct {
-	ID int64 `search:"asdf"`
+	ID  int64   `search:"asdf"`
 	IDs []int64 `search:"d,op: in"`
 }
 
