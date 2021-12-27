@@ -26,9 +26,11 @@ func (e *Error) Error() string {
 	return e.err.Error()
 }
 
-func NewError(kind *kind, codeAndErr ...interface{}) *Error {
-	e := &Error{kind: kind}
-	for _, param := range codeAndErr {
+var DefKind = NewBaseKind("default error Kind", -1, "")
+
+func NewError(kindCodeAndErr ...interface{}) *Error {
+	e := &Error{}
+	for _, param := range kindCodeAndErr {
 		switch p := param.(type) {
 		case int:
 			c := int64(p)
@@ -39,7 +41,12 @@ func NewError(kind *kind, codeAndErr ...interface{}) *Error {
 			e.err = fmt.Errorf(p)
 		case error:
 			e.err = fmt.Errorf(p.Error())
+		case *kind:
+			e.kind = p
 		}
+	}
+	if e.kind == nil {
+		e.kind = DefKind
 	}
 	if e.code == nil {
 		e.code = e.kind.code

@@ -16,7 +16,7 @@ func (k *kind) Is(kind *kind, strict ...bool) bool {
 }
 
 func (k *kind) Error(codeAndErr ...interface{}) *Error {
-	return NewError(k, codeAndErr...)
+	return NewError(append(codeAndErr, k)...)
 }
 
 func (k *kind) Errorf(format string, a ...interface{}) *Error {
