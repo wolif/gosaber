@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-func GenPwd(length int, hasSpecial bool) string {
+func Generate(length int, hasSpecial bool) string {
 	rand.Seed(time.Now().UnixNano())
 
 	upperChar := "ABCDEFGHIJKLMNOPQRSTUVWXYZ"

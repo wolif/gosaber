@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func FindPath(path string, depth int) (string, error) {
+func Find(path string, depth int) (string, error) {
 	if strings.HasPrefix(path, "/") {
 		_, err := os.Stat(path)
 		return path, err
@@ -23,7 +23,7 @@ func FindPath(path string, depth int) (string, error) {
 	}
 
 	// 从执行目录开始寻找
-	execPath, err := ExecutablePath()
+	execPath, err := Executable()
 	if err != nil {
 		return "", err
 	}
@@ -40,7 +40,7 @@ func FindPath(path string, depth int) (string, error) {
 	return "", fmt.Errorf("%s not found", orginPath)
 }
 
-func ExecutablePath() (string, error) {
+func Executable() (string, error) {
 	dir, err := os.Executable()
 	if err != nil {
 		return "", err

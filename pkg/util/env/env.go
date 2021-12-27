@@ -2,19 +2,15 @@ package env
 
 import "os"
 
-func GetEnv(key string) string {
-	return os.Getenv(key)
-}
-
-func GetEnvWithFallback(key, fallback string) string {
-	val := os.Getenv(key)
-	if val != "" {
+func Get(key string, fallback ...string) string {
+	if val := os.Getenv(key); val != "" {
 		return val
+	} else if len(fallback) > 0 {
+		return fallback[0]
 	}
-
-	return fallback
+	return ""
 }
 
-func SetEnv(key, value string) {
+func Set(key, value string) {
 	os.Setenv(key, value)
 }

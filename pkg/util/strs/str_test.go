@@ -15,5 +15,5 @@ func TestLcFirst(t *testing.T) {
 }
 
 func TestCamelString(t *testing.T) {
-	t.Log(CamelString("created_at"))
+	t.Log(CamelCase("created_at"))
 }

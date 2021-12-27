@@ -6,6 +6,6 @@ import (
 )
 
 func TestGenPwd(t *testing.T) {
-	fmt.Println(GenPwd(10, false))
-	fmt.Println(GenPwd(10, true))
+	fmt.Println(Generate(10, false))
+	fmt.Println(Generate(10, true))
 }

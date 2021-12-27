@@ -8,23 +8,19 @@ import (
 	"strings"
 )
 
-func StrIsEmpty(str string) bool {
+func IsEmpty(str string) bool {
 	return str == ""
 }
 
-func StrNotEmpty(str string) bool {
-	return str != ""
-}
-
 func StrWithFallback(str, fallback string) string {
-	if StrNotEmpty(str) {
+	if !IsEmpty(str) {
 		return str
 	}
 
 	return fallback
 }
 
-func StrToInt64WithFallback(str string, fallback int64) int64 {
+func ToInt64WithFallback(str string, fallback int64) int64 {
 	output, err := strconv.ParseInt(str, 10, 64)
 	if err != nil {
 		return fallback
@@ -32,11 +28,11 @@ func StrToInt64WithFallback(str string, fallback int64) int64 {
 	return output
 }
 
-func StrToInt64WithDefaultZero(str string) int64 {
-	return StrToInt64WithFallback(str, 0)
+func ToInt64WithDefaultZero(str string) int64 {
+	return ToInt64WithFallback(str, 0)
 }
 
-func StrToUint64WithFallback(str string, fallback uint64) uint64 {
+func ToUint64WithFallback(str string, fallback uint64) uint64 {
 	output, err := strconv.ParseUint(str, 10, 64)
 	if err != nil {
 		return fallback
@@ -44,11 +40,11 @@ func StrToUint64WithFallback(str string, fallback uint64) uint64 {
 	return output
 }
 
-func StrToUint64WithDefaultZero(str string) uint64 {
-	return StrToUint64WithFallback(str, 0)
+func ToUint64WithDefaultZero(str string) uint64 {
+	return ToUint64WithFallback(str, 0)
 }
 
-func StrToIntWithFallback(str string, fallback int) int {
+func ToIntWithFallback(str string, fallback int) int {
 	output, err := strconv.Atoi(str)
 	if err != nil {
 		return fallback
@@ -57,10 +53,10 @@ func StrToIntWithFallback(str string, fallback int) int {
 }
 
 func StrToIntWithDefaultZero(str string) int {
-	return StrToIntWithFallback(str, 0)
+	return ToIntWithFallback(str, 0)
 }
 
-func StrToFloat32WithFallback(str string, fallback float32) float32 {
+func ToFloat32WithFallback(str string, fallback float32) float32 {
 	output, err := strconv.ParseFloat(str, 32)
 	if err != nil {
 		return fallback
@@ -68,11 +64,11 @@ func StrToFloat32WithFallback(str string, fallback float32) float32 {
 	return float32(output)
 }
 
-func StrToFloat32WithDefaultZero(str string) float32 {
-	return StrToFloat32WithFallback(str, 0)
+func ToFloat32WithDefaultZero(str string) float32 {
+	return ToFloat32WithFallback(str, 0)
 }
 
-func StrToFloat64WithFallback(str string, fallback float64) float64 {
+func ToFloat64WithFallback(str string, fallback float64) float64 {
 	output, err := strconv.ParseFloat(str, 64)
 	if err != nil {
 		return fallback
@@ -80,11 +76,11 @@ func StrToFloat64WithFallback(str string, fallback float64) float64 {
 	return output
 }
 
-func StrToFloat64WithDefaultZero(str string) int {
-	return StrToIntWithFallback(str, 0)
+func ToFloat64WithDefaultZero(str string) int {
+	return ToIntWithFallback(str, 0)
 }
 
-func ToString(v interface{}) string {
+func Stringify(v interface{}) string {
 	switch reflect.ValueOf(v).Kind() {
 	case reflect.Array, reflect.Map:
 		bs, err := json.Marshal(v)
@@ -104,7 +100,7 @@ func ToString(v interface{}) string {
  * @param s 需要转换的字符串
  * @return string
  **/
-func SnakeString(s string) string {
+func SnakeCase(s string) string {
 	data := make([]byte, 0, len(s)*2)
 	j := false
 	num := len(s)
@@ -132,17 +128,17 @@ func SnakeString(s string) string {
  * @param s要转换的字符串
  * @return string
  **/
-func CamelString(s string) string {
+func CamelCase(s string) string {
 	data := make([]byte, 0, len(s))
 	j := false
 	k := false
 	num := len(s) - 1
 	for i := 0; i <= num; i++ {
 		d := s[i]
-		if k == false && d >= 'A' && d <= 'Z' {
+		if !k && d >= 'A' && d <= 'Z' {
 			k = true
 		}
-		if d >= 'a' && d <= 'z' && (j || k == false) {
+		if d >= 'a' && d <= 'z' && (j || !k) {
 			d = d - 32
 			j = false
 			k = true

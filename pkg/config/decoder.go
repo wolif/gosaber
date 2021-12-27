@@ -18,7 +18,7 @@ func init() {
 func LoadEnv(conf interface{}) error {
 	var envPath string
 	if Path == "" {
-		p, err := path.FindPath("configs/.env", 5)
+		p, err := path.Find("configs/.env", 5)
 		if err != nil {
 			return err
 		}
@@ -33,7 +33,7 @@ func LoadEnv(conf interface{}) error {
 func LoadJson(conf interface{}) error {
 	var jsonPath string
 	if Path == "" {
-		p, err := path.FindPath("configs/config.json", 5)
+		p, err := path.Find("configs/config.json", 5)
 		if err != nil {
 			return err
 		}
