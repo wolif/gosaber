@@ -1,5 +1,7 @@
 package jsonrpc20
 
+import "encoding/json"
+
 type ErrorCode = int
 
 const (
@@ -34,10 +36,12 @@ func ErrorMessage(code ErrorCode, message ...string) string {
 	return errMsgMap[DEF_ERROR_MESSAGE]
 }
 
+// ResponseError ---------------------------------------------------------------
+
 type ResponseError struct {
-	Code    ErrorCode   `json:"code"`
-	Message string      `json:"message"`
-	Data    interface{} `json:"data,omitempty"`
+	Code    ErrorCode       `json:"code"`
+	Message string          `json:"message"`
+	Data    json.RawMessage `json:"data,omitempty"`
 }
 
 func (re *ResponseError) Error() string {
@@ -55,14 +59,41 @@ func NewResponseError(code ErrorCode, options ...interface{}) *ResponseError {
 		}
 	}
 	if len(options) >= 2 {
-		re.Data = options[1]
+		re.Data, _ = json.Marshal(options[1])
 	}
 	return re
 }
 
+// response --------------------------------------------------------------------
+
 type Response struct {
-	JsonRpc string         `json:"jsonrpc"`
-	Result  interface{}    `json:"result,omitempty"`
-	Error   *ResponseError `json:"error,omitempty"`
-	ID      int64          `json:"id"`
+	JsonRpc string          `json:"jsonrpc"`
+	Result  json.RawMessage `json:"result,omitempty"`
+	Error   *ResponseError  `json:"error,omitempty"`
+	ID      json.RawMessage `json:"id"`
+}
+
+func (r *Response) setResult(result interface{}) *Response {
+	r.Result, _ = json.Marshal(result)
+	return r
+}
+
+func (r *Response) setError(code ErrorCode, options ...interface{}) *Response {
+	r.Error = NewResponseError(code, options...)
+	return r
+}
+
+func NewErrorResponse(code ErrorCode, options ...interface{}) *Response {
+	return &Response{
+		JsonRpc: VERSION,
+		Error:   NewResponseError(code, options...),
+	}
+}
+
+func (r *Response) IsSuccess() bool {
+	return r.Error == nil
+}
+
+func (r *Response) IsErrorCode(code ErrorCode) bool {
+	return !r.IsSuccess() && r.Error.Code == code
 }

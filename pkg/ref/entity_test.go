@@ -1,9 +1,16 @@
 package ref
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 type ts struct {
 	ID int64 `search:"id"`
+}
+
+func (ts *ts) Show() {
+	fmt.Printf("id = %d", ts.ID)
 }
 
 func TestEntity(t *testing.T) {
@@ -16,4 +23,6 @@ func TestEntity(t *testing.T) {
 	i := 123
 	refI := New(i)
 	t.Log(!refI.IsStringOrNumber() && !refI.IsSlice())
+
+	refTs.StructMethodCall("Show")
 }

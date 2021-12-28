@@ -50,9 +50,16 @@ func TestClient_CallBatch(t *testing.T) {
 			t.Log(result)
 		}
 	}
+}
 
-	call := client.Call("Catalog\\Area.parent").SetParam(246)
-	err = call.Invoke(context.TODO())
+func TestClient_Call(t *testing.T) {
+	client := NewClient(&Config{
+		Addr:    "http://catalog-service.dev.tgs.com",
+		Timeout: time.Second * 2,
+	})
+
+	call := client.Call("Catalog\\Area.parent").SetParam([]int{246})
+	err := call.Invoke(context.TODO())
 	if err != nil {
 		t.Error(err)
 		return

@@ -1,56 +1,65 @@
 package jsonrpc20
 
-import "github.com/wolif/gosaber/pkg/jsonrpc20/utils/idgen"
+import (
+	"encoding/json"
+	"github.com/wolif/gosaber/pkg/jsonrpc20/utils/idgen"
+)
 
 type Request struct {
-	JsonRpc string      `json:"jsonrpc"`
-	Method  string      `json:"method"`
-	Params  interface{} `json:"params,omitempty"`
-	ID      int64 `json:"id"`
+	JsonRpc string          `json:"jsonrpc"`
+	Method  string          `json:"method"`
+	Params  json.RawMessage `json:"params,omitempty"`
+	ID      json.RawMessage `json:"id"`
 }
 
-func NewRequest(id ...int64) *Request {
+func NewRequest(id ...interface{}) *Request {
 	req := &Request{
 		JsonRpc: VERSION,
 	}
 	if len(id) > 0 {
-		req.ID = id[0]
+		req.setID(id[0])
 	} else {
-		req.ID = idgen.GenID()
+		req.setID(idgen.Gen())
 	}
 	return req
 }
 
-func (r *Request) SetMethod(method string) *Request {
+// setter ----------------------------------------------------------------------
+
+func (r *Request) setMethod(method string) *Request {
 	r.Method = method
 	return r
 }
 
-func (r *Request) SetParams(params ...interface{}) *Request {
+func (r *Request) setParams(params ...interface{}) *Request {
 	if len(params) == 0 {
 		return r
 	}
-	r.Params = params
+	r.Params, _ = json.Marshal(params)
 	return r
 }
 
-func (r *Request) SetParam(param interface{}) *Request {
-	r.Params = param
+func (r *Request) setParam(param interface{}) *Request {
+	r.Params, _ = json.Marshal(param)
 	return r
 }
+
+func (r *Request) setID(id interface{}) *Request {
+	switch id := id.(type) {
+	case int, int8, int16, int32, int64, string:
+		r.ID, _ = json.Marshal(id)
+	default:
+		panic("request id should be type integer or string")
+	}
+	return r
+}
+
+// create Response -------------------------------------------------------------
 
 func (r *Request) ResponseResult(result interface{}) *Response {
-	return &Response{
-		JsonRpc: r.JsonRpc,
-		Result:  result,
-		ID:      r.ID,
-	}
+	return (&Response{JsonRpc: r.JsonRpc, ID: r.ID}).setResult(result)
 }
 
 func (r *Request) ResponseError(code ErrorCode, options ...interface{}) *Response {
-	return &Response{
-		JsonRpc: r.JsonRpc,
-		Error:   NewResponseError(code, options...),
-		ID:      r.ID,
-	}
+	return (&Response{JsonRpc: r.JsonRpc, ID: r.ID}).setError(code, options...)
 }

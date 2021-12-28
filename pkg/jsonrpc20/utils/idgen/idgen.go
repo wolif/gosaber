@@ -129,6 +129,6 @@ func init() {
 	}
 }
 
-func GenID() int64 {
+func Gen() int64 {
 	return nw.GetId()
 }

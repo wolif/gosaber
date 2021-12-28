@@ -12,9 +12,9 @@ func (e *Entity) initStructMethods() bool {
 	if !e.IsStruct() {
 		return false
 	}
-	e.vStructMethods = make(map[string]*reflect.Method, e.GetType().NumMethod())
-	for i := 0; i < e.GetType().NumMethod(); i++ {
-		method := e.GetType().Method(i)
+	e.vStructMethods = make(map[string]*reflect.Method, e.GetOriType().NumMethod())
+	for i := 0; i < e.GetOriType().NumMethod(); i++ {
+		method := e.GetOriType().Method(i)
 		e.vStructMethods[method.Name] = &method
 	}
 	return true
