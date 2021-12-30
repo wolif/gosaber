@@ -3,7 +3,6 @@ package jsonrpc20
 import (
 	"context"
 	"testing"
-	"time"
 )
 
 type tResult struct {
@@ -16,22 +15,18 @@ type tResult struct {
 }
 
 func TestClient_CallBatch(t *testing.T) {
-	client := NewClient(&Config{
-		Addr:    "http://catalog-service.dev.tgs.com",
-		Timeout: time.Second * 2,
-	})
-	client.SetbatchCallLimit(100)
+	client := NewClient(NewClientConfig("http://catalog-service.dev.tgs.com"))
 
 	callBatch := client.CallBatch()
 	call1 := client.Call("Catalog\\Area.parent", 378)
 	call2 := client.Call("Catalog\\Area.parent", 246)
 	call3 := client.Call("Catalog\\Area.parent", 378)
 	call4 := client.Call("Catalog\\Area.parent", 246)
-	callBatch.Push(call1).Push(call2).Push(call3).Push(call4)
-	call5 := callBatch.Call("Catalog\\Area.parent", 378)
-	call6 := callBatch.Call("Catalog\\Area.parent", 246)
-	call7 := callBatch.Call("Catalog\\Area.parent", 378)
-	call8 := callBatch.Call("Catalog\\Area.parent", 246)
+	callBatch.Push(call1, call2, call3, call4)
+	call5, _ := callBatch.Call("Catalog\\Area.parent", 378)
+	call6, _ := callBatch.Call("Catalog\\Area.parent", 246)
+	call7, _ := callBatch.Call("Catalog\\Area.parent", 378)
+	call8, _ := callBatch.Call("Catalog\\Area.parent", 246)
 
 	err := callBatch.Invoke(context.TODO())
 	if err != nil {
@@ -53,10 +48,7 @@ func TestClient_CallBatch(t *testing.T) {
 }
 
 func TestClient_Call(t *testing.T) {
-	client := NewClient(&Config{
-		Addr:    "http://catalog-service.dev.tgs.com",
-		Timeout: time.Second * 2,
-	})
+	client := NewClient(NewClientConfig("http://catalog-service.dev.tgs.com"))
 
 	call := client.Call("Catalog\\Area.parent").SetParam([]int{246})
 	err := call.Invoke(context.TODO())

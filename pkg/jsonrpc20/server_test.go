@@ -30,9 +30,9 @@ func TestServer(t *testing.T) {
 		return segs[0], strs.UcFirst(segs[1])
 	})
 	module := new(TestModule)
-	server.RegisterModule(module)
+	server.RegisterModule(module, "test")
 
-	reqStr := `[{"jsonrpc":"2.0", "method":"TestModule.F1", "params":{"i":1,"s":"1"}, "id":1},{"jsonrpc":"2.0", "method":"test.F1", "params":{"i":1,"s":"1"}, "id":2},{"jsonrpc":"2.0", "method":"test.F1", "params":{"i":1,"s":"1"}, "id":3}]`
+	reqStr := `[{"jsonrpc":"2.0", "method":"test.F1", "params":{"i":1,"s":"1"}, "id":1},{"jsonrpc":"2.0", "method":"test.F1", "params":{"i":1,"s":"1"}, "id":2},{"jsonrpc":"2.0", "method":"test.F1", "params":{"i":1,"s":"1"}, "id":3}]`
 	ctx := context.TODO()
 	resp := server.Dispatch(&ctx, []byte(reqStr))
 	switch resp := resp.(type) {

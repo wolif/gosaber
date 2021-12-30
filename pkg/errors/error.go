@@ -10,19 +10,19 @@ type Error struct {
 	err  error
 }
 
-func (e *Error) Kind() *kind {
+func (e Error) Kind() *kind {
 	return e.kind
 }
 
-func (e *Error) IsKind(kind *kind, strict ...bool) bool {
+func (e Error) IsKind(kind *kind, strict ...bool) bool {
 	return e.kind.Is(kind, strict...)
 }
 
-func (e *Error) Code() int64 {
+func (e Error) Code() int64 {
 	return *(e.code)
 }
 
-func (e *Error) Error() string {
+func (e Error) Error() string {
 	return e.err.Error()
 }
 

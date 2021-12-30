@@ -57,6 +57,9 @@ func NewResponseError(code ErrorCode, options ...interface{}) *ResponseError {
 		if msg, ok := options[0].(string); ok {
 			re.Message = msg
 		}
+		if err, ok := options[0].(error); ok {
+			re.Message = err.Error()
+		}
 	}
 	if len(options) >= 2 {
 		re.Data, _ = json.Marshal(options[1])

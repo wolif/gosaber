@@ -2,7 +2,6 @@ package jsonrpc20
 
 import (
 	"context"
-	"fmt"
 	"reflect"
 	"strings"
 	"sync"
@@ -18,7 +17,7 @@ type MethodName = string // 方法名称
 type Server struct {
 	ctxType     reflect.Type                          // 方法的第一个参数, context类型
 	modules     map[ModuleName]*ServerModule          // 注册的所有模块
-	resolveFunc func(string) (ModuleName, MethodName) // request.method 解析成 module 和 method
+	resolveFunc func(string) (ModuleName, MethodName) // 将request.method 解析成 module 和 method的方法
 	protocol    Protocol                              // 数据编码协议
 }
 
@@ -35,7 +34,7 @@ func NewServer(fn func(string) (ModuleName, MethodName)) *Server {
 
 func (s *Server) SetCtxType(t reflect.Type) *Server {
 	if t.Kind() != reflect.Ptr {
-		panic(fmt.Sprintf("context type must be pointer"))
+		panic(ServerError("context type must be pointer"))
 	}
 	s.ctxType = t
 	return s
@@ -61,7 +60,7 @@ func (s *Server) Module(modName ModuleName) (*ServerModule, error) {
 	if sm, ok := s.modules[modName]; ok {
 		return sm, nil
 	}
-	return nil, fmt.Errorf("jsonrpc warn: module named [%s] not found", modName)
+	return nil, ServerErrorf("module named [%s] not found", modName)
 }
 
 func (s *Server) ResolveFunc() func(string) (ModuleName, MethodName) {
@@ -95,7 +94,7 @@ func (s *Server) RegisterModules(modules ...interface{}) *Server {
 func (s *Server) RegisterModule(module interface{}, name ...string) *Server {
 	rm := ref.New(module)
 	if !rm.IsStruct() || !rm.IsPtr() {
-		panic(fmt.Sprintf("jsonrpc warn: the module named [%s] must be a struct ptr!", name))
+		panic(ServerErrorf("the module named [%s] must be a struct ptr!", name))
 	}
 	modName := strings.SplitN(rm.GetOriType().String(), ".", 2)[1]
 	if len(name) > 0 {
@@ -106,7 +105,7 @@ func (s *Server) RegisterModule(module interface{}, name ...string) *Server {
 		s.modules = make(map[ModuleName]*ServerModule)
 	}
 	if _, ok := s.modules[modName]; ok {
-		panic(fmt.Sprintf("jsonrpc warn: the module named [%s] is already registered!", modName))
+		panic(ServerErrorf("the module named [%s] is already registered!", modName))
 	}
 	s.modules[modName] = &ServerModule{name: modName, server: s, entity: rm}
 	s.modules[modName].init()
@@ -145,14 +144,15 @@ func (s *Server) Dispatch(ctx interface{}, body []byte) interface{} {
 		return resps
 	}
 
+	// 无法解析请求数据
 	return NewErrorResponse(E_PARSE)
 }
 
 func (s *Server) do(ctx interface{}, req *Request) *Response {
-	modName, metName := s.resolveFunc(req.Method)
+	modName, _ := s.resolveFunc(req.Method)
 	module, err := s.Module(modName)
 	if err != nil {
 		return req.ResponseError(E_METHOD_NOT_FOUND, err.Error())
 	}
-	return module.Do(ctx, req, metName)
+	return module.Do(ctx, req)
 }

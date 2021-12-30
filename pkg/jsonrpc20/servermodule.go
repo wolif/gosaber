@@ -34,41 +34,41 @@ func (sm *ServerModule) init() {
 // 如果方法不符合注册条件会返回错误
 func (sm *ServerModule) registerMethod(method *reflect.Method) error {
 	if method.Type.NumIn() != 4 {
-		return fmt.Errorf(
-			"jsonrpc error: the method [%s] need 3 args",
+		return ServerErrorf(
+			"the method [%s] need 3 args",
 			method.Name,
 		)
 	}
 	if method.Type.In(1) != sm.server.ctxType {
-		return fmt.Errorf(
-			"jsonrpc error: the method [%s]args 0 should be type [%s]",
+		return ServerErrorf(
+			"the method [%s]args 0 should be type [%s]",
 			method.Name,
 			method.Type.In(1).String(),
 		)
 	}
 	if method.Type.In(2).Kind() != reflect.Ptr || method.Type.In(3).Kind() != reflect.Ptr {
-		return fmt.Errorf(
-			"jsonrpc error: the method [%s] args 1 & 2 should be a ptr",
+		return ServerErrorf(
+			"the method [%s] args 1 & 2 should be a ptr",
 			method.Name,
 		)
 	}
 	if method.Type.NumOut() != 1 {
-		return fmt.Errorf(
-			"jsonrpc error: the method [%s] need 1 return values",
+		return ServerErrorf(
+			"the method [%s] need 1 return values",
 			method.Name,
 		)
 	}
 	if method.Type.Out(0) != reflect.TypeOf((*ResponseError)(nil)) {
-		return fmt.Errorf(
-			"jsonrpc error: the method [%s] return value 0 should be type [*jsonrpc20.Response]",
+		return ServerErrorf(
+			"the method [%s] return value 0 should be type [*jsonrpc20.Response]",
 			method.Name,
 		)
 	}
 
 	for i := 1; i <= 3; i++ {
 		if !utils.IsSymbolExportedOrBuiltin(method.Type.In(i)) {
-			return fmt.Errorf(
-				"jsonrpc error: the method [%s] args 1 & 2 should be avild",
+			return ServerErrorf(
+				"the method [%s] args 1 & 2 should be avild",
 				method.Name,
 			)
 		}
@@ -93,13 +93,14 @@ func (sm *ServerModule) Method(metName MethodName) (*reflect.Method, error) {
 		method, _ := sm.entity.StructMethodGet(metName)
 		return method, nil
 	}
-	return nil, fmt.Errorf("josnrpc error: method named [%s] in module [%s]", metName, sm.name)
+	return nil, ServerErrorf("method named [%s] in module [%s]", metName, sm.name)
 }
 
 // method ----------------------------------------------------------------------
 
 // 执行方法调用
-func (sm *ServerModule) Do(c interface{}, req *Request, metName MethodName) *Response {
+func (sm *ServerModule) Do(c interface{}, req *Request) *Response {
+	_, metName := sm.server.resolveFunc(req.Method)
 	method, err := sm.Method(metName)
 	if err != nil {
 		return req.ResponseError(E_METHOD_NOT_FOUND, err.Error())
@@ -108,7 +109,7 @@ func (sm *ServerModule) Do(c interface{}, req *Request, metName MethodName) *Res
 	if reflect.TypeOf(c) != sm.server.ctxType {
 		return req.ResponseError(
 			E_INTERNAL,
-			fmt.Sprintf("jsonrpc error: context type is not [%s]", sm.server.ctxType.String()),
+			ServerErrorf("context type is not [%s]", sm.server.ctxType.String()),
 		)
 	}
 
@@ -121,7 +122,7 @@ func (sm *ServerModule) Do(c interface{}, req *Request, metName MethodName) *Res
 	if err != nil {
 		return req.ResponseError(
 			E_INTERNAL,
-			fmt.Sprintf("jsonrpc error: [%s] parse params error: %s", req.Method, err.Error()),
+			fmt.Sprintf("[%s] parse params error: %s", req.Method, err.Error()),
 		)
 	}
 
