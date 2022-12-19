@@ -20,30 +20,30 @@ func (c *Calling) ReDo(ctx ...context.Context) error {
 
 func (c *Calling) Do(ctx ...context.Context) error {
 	if len(ctx) > 0 {
-		c.Context(ctx[0])
+		c.WithContext(ctx[0])
 	}
 
-	if c.GetUrl() == nil {
+	if c.Url() == nil {
 		return errorf("url has not set")
 	}
 
-	if len(c.GetCookies()) > 0 {
+	if len(c.Cookies()) > 0 {
 		jar, _ := cookiejar.New(nil)
-		jar.SetCookies(c.GetUrl(), c.GetCookies())
+		jar.SetCookies(c.Url(), c.Cookies())
 	}
 
-	if c.GetRequest() == nil {
-		request, err := http.NewRequestWithContext(c.GetContext(), c.GetMethod(), c.GetUrl().String(), c.GetBody())
+	if c.Request() == nil {
+		request, err := http.NewRequestWithContext(c.Context(), c.Method(), c.Url().String(), c.Body())
 		if err != nil {
 			return errorf(err)
 		}
-		c.Request(request)
+		c.WithRequest(request)
 	}
 
 	c.fillOptions()
 	var err error
 	timeStart := time.Now()
-	c.response, err = c.GetClient().Do(c.GetRequest())
+	c.response, err = c.Client().Do(c.Request())
 	timeExpend := time.Since(timeStart)
 	c.timeExpend = &timeExpend
 	if err != nil {

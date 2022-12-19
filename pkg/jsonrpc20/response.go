@@ -1,6 +1,8 @@
 package jsonrpc20
 
-import "encoding/json"
+import (
+	"encoding/json"
+)
 
 type ErrorCode = int
 
@@ -15,13 +17,13 @@ const (
 )
 
 var errMsgMap = map[ErrorCode]string{
-	E_PARSE:            "语法解析错误",
-	E_INVALID_REQ:      "无效请求",
-	E_METHOD_NOT_FOUND: "找不到方法",
-	E_INVALID_PARAMS:   "无效的参数",
-	E_INTERNAL:         "内部错误",
-	E_SERVER:           "服务端错误",
-	E_UNKNOWN:          "错误类型未知",
+	E_PARSE:            "syntax parse error",
+	E_INVALID_REQ:      "invalid request",
+	E_METHOD_NOT_FOUND: "method not found",
+	E_INVALID_PARAMS:   "invalid arguments",
+	E_INTERNAL:         "internal error",
+	E_SERVER:           "server error",
+	E_UNKNOWN:          "unknown error",
 }
 
 var DEF_ERROR_MESSAGE = E_UNKNOWN
@@ -54,17 +56,49 @@ func NewResponseError(code ErrorCode, options ...interface{}) *ResponseError {
 		Message: ErrorMessage(code),
 	}
 	if len(options) >= 1 {
-		if msg, ok := options[0].(string); ok {
-			re.Message = msg
-		}
-		if err, ok := options[0].(error); ok {
-			re.Message = err.Error()
+		switch e := options[0].(type) {
+		case string:
+			re.Message = e
+		case error:
+			re.Message = e.Error()
 		}
 	}
 	if len(options) >= 2 {
 		re.Data, _ = json.Marshal(options[1])
 	}
 	return re
+}
+
+func RespErr(code ErrorCode, options ...interface{}) *ResponseError {
+	return NewResponseError(code, options...)
+}
+
+func RespErrParse(options ...interface{}) *ResponseError {
+	return NewResponseError(E_PARSE, options...)
+}
+
+func RespErrInvalidReq(options ...interface{}) *ResponseError {
+	return NewResponseError(E_INVALID_REQ, options...)
+}
+
+func RespErrMethodNotFound(options ...interface{}) *ResponseError {
+	return NewResponseError(E_METHOD_NOT_FOUND, options...)
+}
+
+func RespErrInvalidParams(options ...interface{}) *ResponseError {
+	return NewResponseError(E_INVALID_PARAMS, options...)
+}
+
+func RespErrInternal(options ...interface{}) *ResponseError {
+	return NewResponseError(E_INTERNAL, options...)
+}
+
+func RespErrServer(options ...interface{}) *ResponseError {
+	return NewResponseError(E_SERVER, options...)
+}
+
+func RespErrUnknown(options ...interface{}) *ResponseError {
+	return NewResponseError(E_UNKNOWN, options...)
 }
 
 // response --------------------------------------------------------------------

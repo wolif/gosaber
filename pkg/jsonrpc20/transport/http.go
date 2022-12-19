@@ -14,13 +14,13 @@ type Http struct {
 
 func (h *Http) Send(ctx context.Context, reqData []byte, header ...interface{}) (respData []byte, err error) {
 	calling := httpclient.New(h.Url).
-		Method(httpclient.POST).
-		Header("content-type", "application/json").
-		Body(reqData).
-		Context(ctx).
-		Option(httpclient.NewOption().SetTimeout(h.Timeout))
+		WithMethod(httpclient.POST).
+		WithHeader("content-type", "application/json").
+		WithBody(reqData).
+		WithContext(ctx).
+		WithOption(httpclient.NewOption().SetTimeout(h.Timeout))
 	if len(header) > 0 {
-		calling.Header(header...)
+		calling.WithHeader(header...)
 	}
 	err = calling.Do()
 	if err != nil {

@@ -15,7 +15,7 @@ func ClientErrorf(format string, a ...interface{}) ClientError {
 }
 
 func (e ClientError) Error() string {
-	return fmt.Sprintf("jsonrpc client, %s", string(e))
+	return fmt.Sprintf("error from jsonrpc client, %s", string(e))
 }
 
 func IsClientError(e error) bool {
@@ -40,7 +40,7 @@ func ServerErrorf(format string, a ...interface{}) ServerError {
 }
 
 func (e ServerError) Error() string {
-	return fmt.Sprintf("jsonrpc server, %s", string(e))
+	return fmt.Sprintf("error from jsonrpc server, %s", string(e))
 }
 
 func IsServerError(e error) bool {

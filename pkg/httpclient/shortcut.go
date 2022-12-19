@@ -10,17 +10,17 @@ import (
  * otherParams type: []byte: body | string: body | io.Reader: body | context.Context: | http.Header | Option
  */
 func DoMethod(method Method, url string, otherParams ...interface{}) (*Calling, error) {
-	calling := New(url).Method(method)
+	calling := New(url).WithMethod(method)
 	for _, param := range otherParams {
 		switch p := param.(type) {
 		case []byte, string, io.Reader:
-			calling.Body(p)
+			calling.WithBody(p)
 		case context.Context:
-			calling.Context(p)
+			calling.WithContext(p)
 		case http.Header:
-			calling.Header(p)
+			calling.WithHeader(p)
 		case *Option:
-			calling.Option(p)
+			calling.WithOption(p)
 		}
 	}
 

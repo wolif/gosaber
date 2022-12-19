@@ -5,7 +5,7 @@ import "fmt"
 type Error string
 
 func (e Error) Error() string {
-	return "http client error: " + string(e)
+	return "http client error, " + string(e)
 }
 
 func errorf(format interface{}, a...interface{}) Error {

@@ -127,13 +127,13 @@ func (sm *ServerModule) Do(c interface{}, req *Request) *Response {
 	}
 
 	retVals := method.Func.Call([]reflect.Value{
-		sm.entity.GetOriValue(),
-		ctx,
-		input,
-		output,
+		sm.entity.GetOriValue(), // method.In(0) receiver
+		ctx,                     // method.In[1] ctx
+		input,                   // method.In[2] request.Params
+		output,                  // method.In[3] response.Result
 	})
 
-	if retVals[0].IsNil() {
+	if retVals[0].IsNil() { // method.Out[0] *Response.Error
 		return req.ResponseResult(output.Interface())
 	} else {
 		r := retVals[0].Interface().(*ResponseError)

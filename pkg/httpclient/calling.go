@@ -28,7 +28,7 @@ type Calling struct {
 func New(url ...string) *Calling {
 	c := new(Calling).init()
 	if len(url) > 0 {
-		c.Url(url[0])
+		c.WithUrl(url[0])
 	}
 	return c
 }
@@ -49,29 +49,26 @@ func (c *Calling) init() *Calling {
 	return c
 }
 
-func (c *Calling) Context(ctx context.Context) *Calling {
+func (c *Calling) WithContext(ctx context.Context) *Calling {
 	c.ctx = ctx
 	return c
 }
 
-func (c *Calling) GetContext() context.Context {
+func (c *Calling) Context() context.Context {
 	return c.ctx
 }
 
-func (c *Calling) Method(method Method) *Calling {
+func (c *Calling) WithMethod(method Method) *Calling {
 	c.method = method
 	return c
 }
 
-func (c *Calling) GetMethod() Method {
+func (c *Calling) Method() Method {
 	return c.method
 }
 
-func (c *Calling) Url(u ...interface{}) *Calling {
-	if len(u) == 0 {
-		return c
-	}
-	switch p := u[0].(type) {
+func (c *Calling) WithUrl(u interface{}) *Calling {
+	switch p := u.(type) {
 	case string:
 		var err error
 		c.url, err = url.Parse(p)
@@ -84,11 +81,11 @@ func (c *Calling) Url(u ...interface{}) *Calling {
 	return c
 }
 
-func (c *Calling) GetUrl() *url.URL {
+func (c *Calling) Url() *url.URL {
 	return c.url
 }
 
-func (c *Calling) Header(headers ...interface{}) *Calling {
+func (c *Calling) WithHeader(headers ...interface{}) *Calling {
 	if len(headers) == 2 {
 		if k, ok1 := headers[0].(string); ok1 {
 			if v, ok2 := headers[1].(string); ok2 {
@@ -99,7 +96,7 @@ func (c *Calling) Header(headers ...interface{}) *Calling {
 		switch header := headers[0].(type) {
 		case map[string]string:
 			for k, v := range header {
-				c.Header(k, v)
+				c.WithHeader(k, v)
 			}
 		case http.Header:
 			c.header = header
@@ -108,24 +105,24 @@ func (c *Calling) Header(headers ...interface{}) *Calling {
 	return c
 }
 
-func (c *Calling) GetHeader() http.Header {
+func (c *Calling) Header() http.Header {
 	return c.header
 }
 
-func (c *Calling) GetHeaderByKey(key string) string {
+func (c *Calling) HeaderByKey(key string) string {
 	return c.header.Get(key)
 }
 
-func (c *Calling) Cookie(cookie *http.Cookie) *Calling {
+func (c *Calling) WithCookie(cookie *http.Cookie) *Calling {
 	c.cookies = append(c.cookies, cookie)
 	return c
 }
 
-func (c *Calling) GetCookies() []*http.Cookie {
+func (c *Calling) Cookies() []*http.Cookie {
 	return c.cookies
 }
 
-func (c *Calling) Body(body interface{}) *Calling {
+func (c *Calling) WithBody(body interface{}) *Calling {
 	switch b := body.(type) {
 	case io.Reader:
 		c.body = b
@@ -139,38 +136,38 @@ func (c *Calling) Body(body interface{}) *Calling {
 	return c
 }
 
-func (c *Calling) GetBody() io.Reader {
+func (c *Calling) Body() io.Reader {
 	return c.body
 }
 
-func (c *Calling) Option(opt *Option) *Calling {
+func (c *Calling) WithOption(opt *Option) *Calling {
 	c.option = opt
 	return c
 }
 
-func (c *Calling) GetOption() *Option {
+func (c *Calling) Option() *Option {
 	return c.option
 }
 
-func (c *Calling) Client(client *http.Client) *Calling {
+func (c *Calling) WithClient(client *http.Client) *Calling {
 	c.client = client
 	return c
 }
 
-func (c *Calling) GetClient() *http.Client {
+func (c *Calling) Client() *http.Client {
 	return c.client
 }
 
-func (c *Calling) Request(request *http.Request) *Calling {
+func (c *Calling) WithRequest(request *http.Request) *Calling {
 	c.request = request
 	return c
 }
 
-func (c *Calling) GetRequest() *http.Request {
+func (c *Calling) Request() *http.Request {
 	return c.request
 }
 
-func (c *Calling) GetTimeExpend() time.Duration {
+func (c *Calling) TimeExpend() time.Duration {
 	return *c.timeExpend
 }
 
