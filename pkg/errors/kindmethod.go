@@ -9,20 +9,16 @@ func (k *kind) Is(kind *kind, strict ...bool) bool {
 	if len(strict) > 0 && strict[0] {
 		return false
 	}
-	if k.name != kind.name && k.superKind == nil {
+	if k.name != kind.name && k.super == nil {
 		return false
 	}
-	return k.superKind.Is(kind)
+	return k.super.Is(kind)
 }
 
-func (k *kind) Error(codeAndErr ...interface{}) *Error {
-	return NewError(append(codeAndErr, k)...)
+func (k *kind) New(codeAndErr ...interface{}) *Error {
+	return New(append(codeAndErr, k)...)
 }
 
-func (k *kind) Errorf(format string, a ...interface{}) *Error {
-	return k.Error(fmt.Sprintf(format, a...))
-}
-
-func (k *kind) ErrorCodeF(code int64, format string, a ...interface{}) *Error {
-	return NewError(k, code, fmt.Sprintf(format, a...))
+func (k *kind) NewF(format string, a ...interface{}) *Error {
+	return k.New(fmt.Sprintf(format, a...))
 }

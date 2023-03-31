@@ -7,35 +7,35 @@ import (
 
 var kindsRegistered = map[string]struct{}{}
 
-func kindRegister(kindName string) string {
-	if kindName == "" {
+func kindRegister(name string) string {
+	if name == "" {
 		panic("kind name can't empty")
 	}
 	var mu sync.Mutex
 	mu.Lock()
 	defer mu.Unlock()
-	if _, ok := kindsRegistered[kindName]; ok {
-		panic(fmt.Sprintf("kind name [%s] has already setted", kindName))
+	if _, ok := kindsRegistered[name]; ok {
+		panic(fmt.Sprintf("kind name [%s] has already setted", name))
 	}
-	kindsRegistered[kindName] = struct{}{}
-	return kindName
+	kindsRegistered[name] = struct{}{}
+	return name
 }
 
 func NewBaseKind(name string, code int64, err string) *kind {
 	return &kind{
-		superKind: nil,
-		name:      kindRegister(name),
-		code:      &code,
-		err:       &err,
+		super: nil,
+		name:  kindRegister(name),
+		code:  &code,
+		err:   &err,
 	}
 }
 
-func (k *kind) Extend(name string, codeAndErr ...interface{}) *kind {
+func (k *kind) Extend(name string, codeErr ...interface{}) *kind {
 	ret := &kind{
-		superKind: k,
-		name:      kindRegister(name),
+		super: k,
+		name:  kindRegister(name),
 	}
-	for _, param := range codeAndErr {
+	for _, param := range codeErr {
 		switch p := param.(type) {
 		case string:
 			ret.err = &p

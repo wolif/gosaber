@@ -2,7 +2,7 @@ package errors
 
 type Err interface {
 	Kind() *kind
-	IsKind(*kind, ...bool) bool
+	IsA(k *kind, strict ...bool) bool
 	Code() int64
 	Error() string
 }

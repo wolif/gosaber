@@ -14,7 +14,7 @@ func (e Error) Kind() *kind {
 	return e.kind
 }
 
-func (e Error) IsKind(kind *kind, strict ...bool) bool {
+func (e Error) IsA(kind *kind, strict ...bool) bool {
 	return e.kind.Is(kind, strict...)
 }
 
@@ -28,9 +28,9 @@ func (e Error) Error() string {
 
 var DefKind = NewBaseKind("default error Kind", -1, "")
 
-func NewError(kindCodeAndErr ...interface{}) *Error {
+func New(kindCodeErr ...interface{}) *Error {
 	e := &Error{}
-	for _, param := range kindCodeAndErr {
+	for _, param := range kindCodeErr {
 		switch p := param.(type) {
 		case int:
 			c := int64(p)
