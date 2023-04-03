@@ -3,6 +3,7 @@ package proc
 import (
 	"context"
 	"fmt"
+	"log"
 	"sync"
 	"time"
 )
@@ -14,7 +15,7 @@ type Worker struct {
 	WG       *sync.WaitGroup
 	Fn       func(w *Worker)
 	Interval time.Duration
-	events   map[wEvent]func(w *Worker, others ...interface{})
+	events   map[event]func(w *Worker, others ...interface{})
 }
 
 func NewWorker(name string, ctx context.Context, wg *sync.WaitGroup, fns ...func(w *Worker)) *Worker {
@@ -22,18 +23,12 @@ func NewWorker(name string, ctx context.Context, wg *sync.WaitGroup, fns ...func
 		Name:    name,
 		StopCtx: ctx,
 		WG:      wg,
-		events:  make(map[wEvent]func(w *Worker, others ...interface{})),
+		events:  make(map[event]func(w *Worker, others ...interface{})),
 	}
 	if len(fns) > 0 {
 		w.Fn = fns[0]
 	}
-	return w
-}
-
-func (w *Worker) emitPEv(ev pEvent) {
-	if w.proc != nil {
-		w.proc.emitEv(ev, w.proc, w)
-	}
+	return w.DefaultEvent()
 }
 
 func (w *Worker) setProc(p *process) *Worker {
@@ -59,8 +54,7 @@ func (w *Worker) Run() {
 
 func (w *Worker) RunInterval() {
 	w.checkBeforeRun()
-	w.emitPEv(PEvWorkerBeforeStart)
-	w.emitEv(WEventBeforeStart, w)
+	w.emit(start)
 
 	w.WG.Add(1)
 	go func(w *Worker) {
@@ -68,8 +62,7 @@ func (w *Worker) RunInterval() {
 		for {
 			select {
 			case <-w.StopCtx.Done():
-				w.emitPEv(PEvWorkerBeforeExit)
-				w.emitEv(WEventBeforeExit, w)
+				w.emit(Exit)
 				return
 			case <-time.After(w.Interval):
 				w.Fn(w)
@@ -78,9 +71,41 @@ func (w *Worker) RunInterval() {
 	}(w)
 }
 
-func (w *Worker) SetNextInterval(interval time.Duration) {
+func (w *Worker) SetInterval(interval time.Duration) {
 	if interval < 0 {
 		interval = 0
 	}
 	w.Interval = interval
+}
+
+// -----------------------------------------------------------------------------
+func (w *Worker) On(e event, fn func(w *Worker, others ...interface{})) *Worker {
+	if w.events == nil {
+		w.events = make(map[event]func(w *Worker, others ...interface{}))
+	}
+	w.events[e] = fn
+	return w
+}
+
+func (w *Worker) Off(e event) *Worker {
+	if w.events[e] != nil {
+		delete(w.events, e)
+	}
+	return w
+}
+
+func (w *Worker) emit(e event, others ...interface{}) {
+	if fn, ok := w.events[e]; ok {
+		fn(w, others...)
+	}
+}
+
+func (w *Worker) DefaultEvent() *Worker {
+	w.On(start, func(work *Worker, others ...interface{}) {
+		log.Printf("worker [%s] loaded, start now...", work.Name)
+	})
+	w.On(Exit, func(work *Worker, others ...interface{}) {
+		log.Printf("worker [%s] end, stopped now...", work.Name)
+	})
+	return w
 }
