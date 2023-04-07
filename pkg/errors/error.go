@@ -4,6 +4,13 @@ import (
 	"fmt"
 )
 
+type Err interface {
+	Kind() *kind
+	IsA(k *kind, strict ...bool) bool
+	Code() int64
+	Error() string
+}
+
 type Error struct {
 	kind *kind
 	code *int64
