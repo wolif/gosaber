@@ -1,11 +1,8 @@
 package mongo
 
 import (
-	"context"
 	"go.mongodb.org/mongo-driver/bson"
 	mongo2 "go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
-	"time"
 )
 
 type Pl struct {
@@ -270,30 +267,4 @@ func (p *Pl) Extract() mongo2.Pipeline {
 		pl = append(pl, d)
 	}
 	return pl
-}
-
-func CountRecord(parentCtx context.Context, col *mongo2.Collection, pl *Pl, timeout time.Duration) (int, error) {
-	cntPl := *pl
-	cntPl.Count("cnt")
-
-	ctx, cancel := context.WithTimeout(parentCtx, timeout)
-	allowDiskUse := true
-
-	cntCur, err := col.Aggregate(ctx, cntPl.Extract(), &options.AggregateOptions{AllowDiskUse: &allowDiskUse})
-	defer cancel()
-	if err != nil {
-		return 0, err
-	}
-
-	result := make([]*struct {
-		Cnt int `bson:"cnt"`
-	}, 0)
-	err = cntCur.All(ctx, &result)
-	if err != nil {
-		return 0, err
-	}
-	if len(result) != 1 {
-		return 0, nil
-	}
-	return result[0].Cnt, nil
 }
