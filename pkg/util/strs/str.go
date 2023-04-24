@@ -14,7 +14,7 @@ func IsEmpty(str string) bool {
 	return str == ""
 }
 
-func StrWithFallback(str, fallback string) string {
+func WithFallback(str, fallback string) string {
 	if !IsEmpty(str) {
 		return str
 	}
@@ -53,7 +53,7 @@ func ToIntWithFallback(str string, fallback int) int {
 	return output
 }
 
-func StrToIntWithDefaultZero(str string) int {
+func ToIntWithDefaultZero(str string) int {
 	return ToIntWithFallback(str, 0)
 }
 
@@ -189,7 +189,7 @@ func LcFirst(s string) string {
 	return string(data)
 }
 
-func Random(length int, hasSpecial bool) string {
+func Random(length int, hasSpecial ...bool) string {
 	rand.Seed(time.Now().UnixNano())
 
 	upperChar := "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -202,7 +202,7 @@ func Random(length int, hasSpecial bool) string {
 	buf[2] = digits[rand.Intn(len(digits))]
 
 	i := 3
-	if hasSpecial {
+	if len(hasSpecial) > 0 || hasSpecial[0] {
 		specials := "=+%/!@#$"
 		all = all + specials
 		buf[i] = specials[rand.Intn(len(specials))]
@@ -217,4 +217,3 @@ func Random(length int, hasSpecial bool) string {
 	})
 	return string(buf)
 }
-

@@ -25,25 +25,25 @@ func NewClientConfig(addr string) *ClientConfig {
 }
 
 // 设置接口调用超时时间
-func (c *ClientConfig) WithTimeout(t time.Duration) *ClientConfig {
+func (c *ClientConfig) SetTimeout(t time.Duration) *ClientConfig {
 	c.Timeout = t
 	return c
 }
 
 // 设置服务调用地址
-func (c *ClientConfig) WithAddress(addr string) *ClientConfig {
+func (c *ClientConfig) SetRemoteAddr(addr string) *ClientConfig {
 	c.Addr = addr
 	return c
 }
 
 // 设置批量调用上限
-func (c *ClientConfig) WithbatchCallLimit(n int) *ClientConfig {
+func (c *ClientConfig) SetBatchCallLimit(n int) *ClientConfig {
 	c.BatchCallLimit = n
 	return c
 }
 
 // 获取批量调用上限
-func (c *ClientConfig) FetchBatchCallLimit() int {
+func (c *ClientConfig) GetBatchCallLimit() int {
 	if c.BatchCallLimit == 0 {
 		return BatchCallLimitDef
 	}

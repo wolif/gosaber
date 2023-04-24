@@ -2,23 +2,25 @@ package config
 
 import (
 	"flag"
+
 	"github.com/wolif/gosaber/pkg/config/dotenv"
 	"github.com/wolif/gosaber/pkg/config/json"
+	"github.com/wolif/gosaber/pkg/config/properties"
 	"github.com/wolif/gosaber/pkg/util/path"
 )
 
 var (
-	Path     string
+	Path string
 )
 
 func init() {
 	flag.StringVar(&Path, "conf", "", "config path")
 }
 
-func LoadEnv(conf interface{}) error {
+func LoadProperties(conf interface{}) error {
 	var envPath string
 	if Path == "" {
-		p, err := path.Find("configs/.env", 5)
+		p, err := path.Find("configs/.properties", 5)
 		if err != nil {
 			return err
 		}
@@ -27,7 +29,7 @@ func LoadEnv(conf interface{}) error {
 		envPath = Path
 	}
 
-	return dotenv.Load(envPath, conf)
+	return properties.Load(envPath, conf)
 }
 
 func LoadJson(conf interface{}) error {
@@ -42,4 +44,18 @@ func LoadJson(conf interface{}) error {
 		jsonPath = Path
 	}
 	return json.Load(jsonPath, conf)
+}
+
+func LoadEnv(conf interface{}) error {
+	var dotenvPath string
+	if Path == "" {
+		p, err := path.Find("configs/.env", 5)
+		if err != nil {
+			return err
+		}
+		dotenvPath = p
+	} else {
+		dotenvPath = Path
+	}
+	return dotenv.Load(dotenvPath)
 }

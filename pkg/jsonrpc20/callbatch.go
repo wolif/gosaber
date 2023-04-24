@@ -26,7 +26,7 @@ func NewCallBatch(client *Client) *CallBatch {
 // 当添加量超过批量调用时的数量上限时,会报错
 func (cb *CallBatch) Push(calls ...*Call) error {
 	for _, c := range calls {
-		if len(cb.calls) >= cb.client.config.FetchBatchCallLimit() {
+		if len(cb.calls) >= cb.client.config.GetBatchCallLimit() {
 			return BatchCallOverSize
 		}
 		cb.calls[string(c.request.ID)] = c

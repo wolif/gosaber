@@ -23,7 +23,7 @@ func NewClient(config *ClientConfig) *Client {
 }
 
 // setter ----------------------------------------------------------------------
- 
+
 // 设置解析协议
 func (c *Client) WithProtocol(protocol Protocol) *Client {
 	c.protocol = protocol
