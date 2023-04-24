@@ -29,33 +29,33 @@ func NewRsa(publicKey, privateKey string) *Rsa {
 	return rsaObj
 }
 
-func (this *Rsa) init() {
-	if this.privateKey != "" {
-		block, _ := pem.Decode([]byte(this.privateKey))
+func (r *Rsa) init() {
+	if r.privateKey != "" {
+		block, _ := pem.Decode([]byte(r.privateKey))
 
 		//pkcs1
-		if strings.Index(this.privateKey, "BEGIN RSA") > 0 {
-			this.rsaPrivateKey, _ = x509.ParsePKCS1PrivateKey(block.Bytes)
+		if strings.Index(r.privateKey, "BEGIN RSA") > 0 {
+			r.rsaPrivateKey, _ = x509.ParsePKCS1PrivateKey(block.Bytes)
 		} else { //pkcs8
 			privateKey, _ := x509.ParsePKCS8PrivateKey(block.Bytes)
-			this.rsaPrivateKey = privateKey.(*rsa.PrivateKey)
+			r.rsaPrivateKey = privateKey.(*rsa.PrivateKey)
 		}
 	}
 
-	if this.publicKey != "" {
-		block, _ := pem.Decode([]byte(this.publicKey))
+	if r.publicKey != "" {
+		block, _ := pem.Decode([]byte(r.publicKey))
 		publickKey, _ := x509.ParsePKIXPublicKey(block.Bytes)
-		this.rsaPublicKey = publickKey.(*rsa.PublicKey)
+		r.rsaPublicKey = publickKey.(*rsa.PublicKey)
 	}
 }
 
 /**
  * 加密
  */
-func (this *Rsa) Encrypt(data []byte) ([]byte, error) {
-	blockLength := this.rsaPublicKey.N.BitLen()/8 - 11
+func (r *Rsa) Encrypt(data []byte) ([]byte, error) {
+	blockLength := r.rsaPublicKey.N.BitLen()/8 - 11
 	if len(data) <= blockLength {
-		return rsa.EncryptPKCS1v15(rand.Reader, this.rsaPublicKey, []byte(data))
+		return rsa.EncryptPKCS1v15(rand.Reader, r.rsaPublicKey, []byte(data))
 	}
 
 	buffer := bytes.NewBufferString("")
@@ -72,7 +72,7 @@ func (this *Rsa) Encrypt(data []byte) ([]byte, error) {
 			end = len(data)
 		}
 
-		chunk, err := rsa.EncryptPKCS1v15(rand.Reader, this.rsaPublicKey, data[start:end])
+		chunk, err := rsa.EncryptPKCS1v15(rand.Reader, r.rsaPublicKey, data[start:end])
 		if err != nil {
 			return nil, err
 		}
@@ -84,10 +84,10 @@ func (this *Rsa) Encrypt(data []byte) ([]byte, error) {
 /**
  * 解密
  */
-func (this *Rsa) Decrypt(secretData []byte) ([]byte, error) {
-	blockLength := this.rsaPublicKey.N.BitLen() / 8
+func (r *Rsa) Decrypt(secretData []byte) ([]byte, error) {
+	blockLength := r.rsaPublicKey.N.BitLen() / 8
 	if len(secretData) <= blockLength {
-		return rsa.DecryptPKCS1v15(rand.Reader, this.rsaPrivateKey, secretData)
+		return rsa.DecryptPKCS1v15(rand.Reader, r.rsaPrivateKey, secretData)
 	}
 
 	buffer := bytes.NewBufferString("")
@@ -103,7 +103,7 @@ func (this *Rsa) Decrypt(secretData []byte) ([]byte, error) {
 			end = len(secretData)
 		}
 
-		chunk, err := rsa.DecryptPKCS1v15(rand.Reader, this.rsaPrivateKey, secretData[start:end])
+		chunk, err := rsa.DecryptPKCS1v15(rand.Reader, r.rsaPrivateKey, secretData[start:end])
 		if err != nil {
 			return nil, err
 		}
@@ -115,10 +115,10 @@ func (this *Rsa) Decrypt(secretData []byte) ([]byte, error) {
 /**
  * 签名
  */
-func (this *Rsa) Sign(data []byte, algorithmSign crypto.Hash) ([]byte, error) {
+func (r *Rsa) Sign(data []byte, algorithmSign crypto.Hash) ([]byte, error) {
 	hash := algorithmSign.New()
 	hash.Write(data)
-	sign, err := rsa.SignPKCS1v15(rand.Reader, this.rsaPrivateKey, algorithmSign, hash.Sum(nil))
+	sign, err := rsa.SignPKCS1v15(rand.Reader, r.rsaPrivateKey, algorithmSign, hash.Sum(nil))
 	if err != nil {
 		return nil, err
 	}
@@ -128,16 +128,16 @@ func (this *Rsa) Sign(data []byte, algorithmSign crypto.Hash) ([]byte, error) {
 /**
  * 验签
  */
-func (this *Rsa) Verify(data []byte, sign []byte, algorithmSign crypto.Hash) bool {
+func (r *Rsa) Verify(data []byte, sign []byte, algorithmSign crypto.Hash) bool {
 	h := algorithmSign.New()
 	h.Write(data)
-	return rsa.VerifyPKCS1v15(this.rsaPublicKey, algorithmSign, h.Sum(nil), sign) == nil
+	return rsa.VerifyPKCS1v15(r.rsaPublicKey, algorithmSign, h.Sum(nil), sign) == nil
 }
 
 /**
  * 生成pkcs1格式公钥私钥
  */
-func (this *Rsa) CreateKeys(keyLength int) (privateKey, publicKey string) {
+func (r *Rsa) CreateKeys(keyLength int) (privateKey, publicKey string) {
 	rsaPrivateKey, err := rsa.GenerateKey(rand.Reader, keyLength)
 	if err != nil {
 		return
@@ -163,7 +163,7 @@ func (this *Rsa) CreateKeys(keyLength int) (privateKey, publicKey string) {
 /**
  * 生成pkcs8格式公钥私钥
  */
-func (this *Rsa) CreatePkcs8Keys(keyLength int) (privateKey, publicKey string) {
+func (r *Rsa) CreatePkcs8Keys(keyLength int) (privateKey, publicKey string) {
 	rsaPrivateKey, err := rsa.GenerateKey(rand.Reader, keyLength)
 	if err != nil {
 		return
@@ -171,7 +171,7 @@ func (this *Rsa) CreatePkcs8Keys(keyLength int) (privateKey, publicKey string) {
 
 	privateKey = string(pem.EncodeToMemory(&pem.Block{
 		Type:  "PRIVATE KEY",
-		Bytes: this.MarshalPKCS8PrivateKey(rsaPrivateKey),
+		Bytes: r.MarshalPKCS8PrivateKey(rsaPrivateKey),
 	}))
 
 	derPkix, err := x509.MarshalPKIXPublicKey(&rsaPrivateKey.PublicKey)
@@ -186,7 +186,7 @@ func (this *Rsa) CreatePkcs8Keys(keyLength int) (privateKey, publicKey string) {
 	return
 }
 
-func (this *Rsa) MarshalPKCS8PrivateKey(key *rsa.PrivateKey) []byte {
+func (r *Rsa) MarshalPKCS8PrivateKey(key *rsa.PrivateKey) []byte {
 	info := struct {
 		Version             int
 		PrivateKeyAlgorithm []asn1.ObjectIdentifier
