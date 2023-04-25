@@ -10,18 +10,18 @@ type jsonParser struct{}
 
 var JsonParser = new(jsonParser)
 
-func (j *jsonParser) Encode(event *event.Event) ([]byte, error) {
-	data, err := json.Marshal(event)
+func (j *jsonParser) Encode(e *event.Entity) ([]byte, error) {
+	data, err := json.Marshal(e)
 	if err != nil {
 		return nil, err
 	}
 	return data, nil
 }
-func (j *jsonParser) Decode(eventData []byte) (*event.Event, error) {
-	event := new(event.Event)
-	err := json.Unmarshal(eventData, event)
+func (j *jsonParser) Decode(data []byte) (*event.Entity, error) {
+	e := new(event.Entity)
+	err := json.Unmarshal(data, e)
 	if err != nil {
 		return nil, err
 	}
-	return event, nil
+	return e, nil
 }

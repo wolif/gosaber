@@ -18,7 +18,7 @@ func (q *Queue) Consume(ctx context.Context) error {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		err := q.Client.ConsumeWithGroup(ctx)
+		err := q.Kafka.ConsumeWithGroup(ctx)
 		if err != nil {
 			errChan <- err
 			return
@@ -30,7 +30,7 @@ func (q *Queue) Consume(ctx context.Context) error {
 		defer wg.Done()
 		for {
 			select {
-			case message := <-q.Client.Messages():
+			case message := <-q.Kafka.Messages():
 				e, err := parser.Decode([]byte(message))
 				if err == nil {
 					q.EventChan <- e
@@ -50,10 +50,10 @@ func (q *Queue) Consume(ctx context.Context) error {
 	}
 }
 
-func (q *Queue) Events() chan *event.Event {
+func (q *Queue) Events() chan *event.Entity {
 	return q.EventChan
 }
 
 func (q *Queue) Errors() chan error {
-	return q.Client.Errors()
+	return q.Kafka.Errors()
 }

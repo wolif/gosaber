@@ -2,30 +2,30 @@ package kafka
 
 import (
 	"context"
+
 	"github.com/Shopify/sarama"
 	"github.com/wolif/gosaber/pkg/log"
-	"time"
 )
 
-type grpHandler struct {
+type handler struct {
 	Ctx     context.Context
 	ErrChan chan error
 	MsgChan chan string
 }
 
-func (grpHandler) Setup(sess sarama.ConsumerGroupSession) error {
+func (handler) Setup(sess sarama.ConsumerGroupSession) error {
 	log.Infof("session {GenerationID: %d, MemberID: %s} start", sess.GenerationID(), sess.MemberID())
 	return nil
 }
-func (grpHandler) Cleanup(sess sarama.ConsumerGroupSession) error {
+func (handler) Cleanup(sess sarama.ConsumerGroupSession) error {
 	log.Infof("session {GenerationID: %d, MemberID: %s} stop", sess.GenerationID(), sess.MemberID())
 	return nil
 }
-func (h grpHandler) ConsumeClaim(sess sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error {
+func (h handler) ConsumeClaim(session sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error {
 	for msg := range claim.Messages() {
 		if msg != nil {
 			h.MsgChan <- string(msg.Value)
-			sess.MarkMessage(msg, "")
+			session.MarkMessage(msg, "")
 		}
 	}
 	return nil
@@ -34,48 +34,43 @@ func (h grpHandler) ConsumeClaim(sess sarama.ConsumerGroupSession, claim sarama.
 /*
  * 使用消费组进行消费, 可以消费 多个topic 和 多个partition
  */
-func (c *Client) ConsumeWithGroup(ctx context.Context) error {
-	consumerGrp, err := sarama.NewConsumerGroupFromClient(conf[c.ConnName].Consumer.ConsumerGroup, c.SaramaClient)
+func (c *Entity) ConsumeWithGroup(ctx context.Context) error {
+	consumerGrp, err := sarama.NewConsumerGroupFromClient(conf[c.ConnName].ConsumerConf.ConsumerGroup, c.SaramaClient)
 	if err != nil {
 		return err
 	}
-	defer func() {
-		if err := consumerGrp.Close(); err != nil {
-			panic(err)
-		}
-	}()
+	defer consumerGrp.Close()
 
-	// 连接断开时尝试重新连接
+	err = consumerGrp.Consume(
+		ctx,
+		conf[c.ConnName].ConsumerConf.Topics,
+		handler{Ctx: ctx, ErrChan: c.ErrChan, MsgChan: c.MsgChan},
+	)
+	// 连接配置有错误
+	if err != nil {
+		return err
+	}
+
 	for {
-		select {
-		case <-ctx.Done():
-			return nil
-		default:
-			err := consumerGrp.Consume(
-				ctx,
-				conf[c.ConnName].Consumer.Topics,
-				grpHandler{Ctx: ctx, ErrChan: c.ErrChan, MsgChan: c.MsgChan},
-			)
-
-			// 连接配置有错误
-			if err != nil {
-				return err
-			}
-
-			if err := ctx.Err(); err != nil {
-				select {
-				case c.ErrChan <- err:
-				case <-time.After(1 * time.Second):
-				}
-			}
+		err := consumerGrp.Consume(
+			ctx,
+			conf[c.ConnName].ConsumerConf.Topics,
+			handler{Ctx: ctx, ErrChan: c.ErrChan, MsgChan: c.MsgChan},
+		)
+		// 连接配置有错误
+		if err != nil {
+			return err
+		}
+		if err := ctx.Err(); err != nil {
+			return err
 		}
 	}
 }
 
-func (c *Client) Messages() chan string {
+func (c *Entity) Messages() chan string {
 	return c.MsgChan
 }
 
-func (c *Client) Errors() chan error {
+func (c *Entity) Errors() chan error {
 	return c.ErrChan
 }

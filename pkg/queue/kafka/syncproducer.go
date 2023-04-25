@@ -8,12 +8,12 @@ import (
 	"github.com/wolif/gosaber/pkg/queue/event/parser"
 )
 
-func (q *Queue) SyncProduce(_ context.Context, event *event.Event) error {
+func (q *Queue) SyncProduce(_ context.Context, event *event.Entity) error {
 	data, err := parser.Encode(event)
 	if err != nil {
 		return err
 	}
-	return q.Client.SyncProduce(&sarama.ProducerMessage{
+	return q.Kafka.SyncProduce(&sarama.ProducerMessage{
 		Topic: event.Topic,
 		Key:   sarama.StringEncoder(event.Key),
 		Value: sarama.StringEncoder(string(data)),

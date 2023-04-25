@@ -2,20 +2,21 @@ package kafka
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/Shopify/sarama"
 	"github.com/wolif/gosaber/pkg/log"
-	"testing"
 )
 
 func start() {
 	Init("default", &Config{
 		BrokerList: []string{"10.20.1.20:9092"},
-		Consumer: &Consumer{
+		ConsumerConf: &ConsumerConf{
 			Topics:        []string{"ps.message_send_by_sms"},
 			ConsumerGroup: "kafka-test",
 			Offset:        -2,
 		},
-		Producer: &Producer{
+		ProducerConf: &ProducerConf{
 			Topic: "ps.message_send_by_sms",
 		},
 	})

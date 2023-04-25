@@ -2,21 +2,22 @@ package kafka
 
 import (
 	"fmt"
+
 	"github.com/Shopify/sarama"
 )
 
 type Config struct {
-	BrokerList []string
-	Consumer   *Consumer
-	Producer   *Producer
+	BrokerList   []string
+	ConsumerConf *ConsumerConf
+	ProducerConf *ProducerConf
 }
 
-type Producer struct {
+type ProducerConf struct {
 	Topic     string
 	Partition int32
 }
 
-type Consumer struct {
+type ConsumerConf struct {
 	Topics        []string
 	ConsumerGroup string
 	Partition     int32
@@ -24,8 +25,8 @@ type Consumer struct {
 }
 
 var (
-	conf       map[string]*Config
-	ClientPool map[string]*Client
+	conf map[string]*Config
+	Pool map[string]*Entity
 )
 
 func Init(name string, c *Config) error {
@@ -39,8 +40,8 @@ func Init(name string, c *Config) error {
 	saramaConfig.Producer.Return.Errors = true                                    // 生产时有错误报出
 	saramaConfig.Consumer.Return.Errors = true                                    // 消费时有错误报出
 	saramaConfig.Consumer.Group.Rebalance.Strategy = sarama.BalanceStrategySticky // 重新分配策略
-	if conf[name].Consumer.Offset != 0 {                                          // 指针
-		saramaConfig.Consumer.Offsets.Initial = conf[name].Consumer.Offset
+	if conf[name].ConsumerConf.Offset != 0 {                                      // 指针
+		saramaConfig.Consumer.Offsets.Initial = conf[name].ConsumerConf.Offset
 	} else {
 		saramaConfig.Consumer.Offsets.Initial = -1 // 指针
 	}
@@ -51,10 +52,10 @@ func Init(name string, c *Config) error {
 		return err
 	}
 
-	if ClientPool == nil {
-		ClientPool = make(map[string]*Client)
+	if Pool == nil {
+		Pool = make(map[string]*Entity)
 	}
-	ClientPool[name] = &Client{
+	Pool[name] = &Entity{
 		ConnName:     name,
 		SaramaClient: saramaClient,
 		SaramaConfig: saramaConfig,
@@ -65,8 +66,8 @@ func Init(name string, c *Config) error {
 	return nil
 }
 
-func GetClient(name string) (*Client, error) {
-	if c, found := ClientPool[name]; found {
+func GetClient(name string) (*Entity, error) {
+	if c, found := Pool[name]; found {
 		return c, nil
 	}
 	return nil, fmt.Errorf("client named [%s] not found", name)

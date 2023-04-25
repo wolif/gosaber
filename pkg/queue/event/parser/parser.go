@@ -12,10 +12,10 @@ func SetParser(p abstract.Parser) {
 	parser = p
 }
 
-func Encode(event *event.Event) ([]byte, error) {
-	return parser.Encode(event)
+func Encode(e *event.Entity) ([]byte, error) {
+	return parser.Encode(e)
 }
 
-func Decode(eventData []byte) (*event.Event, error) {
-	return parser.Decode(eventData)
+func Decode(data []byte) (*event.Entity, error) {
+	return parser.Decode(data)
 }

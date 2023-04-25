@@ -25,8 +25,8 @@ func Init(name string, c *Config) error {
 			return err
 		}
 		QueuePool[c.Type+"_"+name] = &kafka.Queue{
-			Client:    client,
-			EventChan: make(chan *event.Event, 1),
+			Kafka:     client,
+			EventChan: make(chan *event.Entity, 1),
 			ErrorChan: make(chan error, 1),
 		}
 	}

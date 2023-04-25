@@ -15,8 +15,7 @@ func start() {
 
 func TestJsonParser_Encode(t *testing.T) {
 	start()
-	event := event2.New("type1", 123)
-	data, err := parser.Encode(event)
+	data, err := parser.Encode(event2.New().SetType("type1").SetData(123))
 	if err != nil {
 		t.Error(err)
 	} else {
@@ -25,11 +24,11 @@ func TestJsonParser_Encode(t *testing.T) {
 }
 
 func TestJsonParser_Decode(t *testing.T) {
-	eventData := `{"id":"054c4efdf3800000","type":"type1","data":123}`
-	event, err := parser.Decode([]byte(eventData))
+	data := `{"id":"054c4efdf3800000","type":"type1","data":123}`
+	e, err := parser.Decode([]byte(data))
 	if err != nil {
 		t.Error(err)
 	} else {
-		t.Logf("%v", event)
+		t.Logf("%v", e)
 	}
 }

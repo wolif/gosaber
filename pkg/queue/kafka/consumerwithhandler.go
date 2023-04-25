@@ -16,7 +16,7 @@ func (q *Queue) ConsumeWithHandler(ctx context.Context, handler abstract.Consume
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		err := q.Client.ConsumeWithGroupAndCbFunc(ctx, func(message *sarama.ConsumerMessage) (metadata string) {
+		err := q.Kafka.ConsumeWithHander(ctx, func(message *sarama.ConsumerMessage) (metadata string) {
 			ev, err := parser.Decode(message.Value)
 			if err != nil {
 				handler.Err(err)

@@ -7,5 +7,5 @@ import (
 )
 
 type SyncProducer interface {
-	SyncProduce(ctx context.Context, event *event.Event) error
+	SyncProduce(ctx context.Context, event *event.Entity) error
 }

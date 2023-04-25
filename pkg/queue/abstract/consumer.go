@@ -11,7 +11,7 @@ type Consumer interface {
 	Consume(ctx context.Context) error
 
 	// 获取events
-	Events() chan *event.Event
+	Events() chan *event.Entity
 
 	// 获取error
 	Errors() chan error

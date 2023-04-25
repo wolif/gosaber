@@ -7,7 +7,7 @@ import (
 )
 
 type ConsumeHandler interface {
-	Event(event *event.Event) string
+	Event(event *event.Entity) string
 	Err(err error)
 }
 

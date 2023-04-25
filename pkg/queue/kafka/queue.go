@@ -6,7 +6,7 @@ import (
 )
 
 type Queue struct {
-	Client    *kafka.Client
-	EventChan chan *event.Event
+	Kafka     *kafka.Entity
+	EventChan chan *event.Entity
 	ErrorChan chan error
 }

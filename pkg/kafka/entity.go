@@ -2,7 +2,7 @@ package kafka
 
 import "github.com/Shopify/sarama"
 
-type Client struct {
+type Entity struct {
 	ConnName     string
 	SaramaClient sarama.Client
 	SaramaConfig *sarama.Config

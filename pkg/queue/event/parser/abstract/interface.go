@@ -8,9 +8,9 @@ type Parser interface {
 }
 
 type Encoder interface {
-	Encode(event *event.Event) ([]byte, error)
+	Encode(e *event.Entity) ([]byte, error)
 }
 
 type Decoder interface {
-	Decode(eventData []byte) (*event.Event, error)
+	Decode(data []byte) (*event.Entity, error)
 }

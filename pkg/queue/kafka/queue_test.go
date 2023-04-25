@@ -15,8 +15,8 @@ import (
 )
 
 var Q = &Queue{
-	Client:    new(kafka.Client),
-	EventChan: make(chan *event.Event),
+	Kafka:     new(kafka.Entity),
+	EventChan: make(chan *event.Entity),
 	ErrorChan: make(chan error),
 }
 
@@ -31,17 +31,17 @@ func TestQ_Start(t *testing.T) {
 	})
 	kafka.Init("default", &kafka.Config{
 		BrokerList: []string{"10.20.1.20:9092"},
-		Consumer: &kafka.Consumer{
+		ConsumerConf: &kafka.ConsumerConf{
 			Topics:        []string{"ps.message_send_by_sms", "ps.message_send_by_wxsub", "ps.message_send_by_wxtpl", "ps.message_send_by_wxsub_sms", "ps.message_send_by_wxtpl_sms"},
 			ConsumerGroup: "kafka-test",
 			Offset:        sarama.OffsetOldest,
 		},
-		Producer: &kafka.Producer{
+		ProducerConf: &kafka.ProducerConf{
 			Topic: "ps.message_send_by_sms",
 		},
 	})
 	var err error
-	Q.Client, err = kafka.GetClient("default")
+	Q.Kafka, err = kafka.GetClient("default")
 	if err != nil {
 		t.Error(err)
 	}
@@ -49,9 +49,8 @@ func TestQ_Start(t *testing.T) {
 
 func TestQ_SyncProduce(t *testing.T) {
 	TestQ_Start(t)
-	ev := event.NewWithKey("type1", "123123", "asdfasdfasdfasdfasdf111222333444555666777")
-	ev.Topic = "ps.message_send_by_sms"
-	err := Q.SyncProduce(context.TODO(), ev)
+	e := event.New().SetTopic("ps.message_send_by_sms").SetType("type1").SetKey("123123").SetData("asdfasdfasdfasdfasdf111222333444555666777")
+	err := Q.SyncProduce(context.TODO(), e)
 	if err != nil {
 		t.Error(err)
 	}
@@ -112,7 +111,7 @@ func TestQ_AsyncConsume(t *testing.T) {
 
 type testHandler struct{ t *testing.T }
 
-func (th *testHandler) Event(event *event.Event) string {
+func (th *testHandler) Event(event *event.Entity) string {
 	th.t.Log(event)
 	return ""
 }

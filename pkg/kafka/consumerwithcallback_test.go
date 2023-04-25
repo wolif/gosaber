@@ -2,12 +2,13 @@ package kafka
 
 import (
 	"context"
-	"github.com/Shopify/sarama"
 	"os"
 	"os/signal"
 	"sync"
 	"syscall"
 	"testing"
+
+	"github.com/Shopify/sarama"
 )
 
 func TestClient_ConsumeWithGroupAndCbFunc(t *testing.T) {
@@ -24,7 +25,7 @@ func TestClient_ConsumeWithGroupAndCbFunc(t *testing.T) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		err := client.ConsumeWithGroupAndCbFunc(ctx, func(message *sarama.ConsumerMessage) (metadata string) {
+		err := client.ConsumeWithHander(ctx, func(message *sarama.ConsumerMessage) (metadata string) {
 			t.Logf("partition: %d, value: %s", message.Partition, string(message.Value))
 			return
 		}, func(err error) {
