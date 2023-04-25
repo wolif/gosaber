@@ -15,18 +15,18 @@ type tResult struct {
 }
 
 func TestClient_CallBatch(t *testing.T) {
-	client := NewClient(NewClientConfig("http://catalog-service.dev.tgs.com"))
+	client := NewClient(NewClientConfig("http://xxx"))
 
 	callBatch := client.CallBatch()
-	call1 := client.Call("Catalog\\Area.parent", 378)
-	call2 := client.Call("Catalog\\Area.parent", 246)
-	call3 := client.Call("Catalog\\Area.parent", 378)
-	call4 := client.Call("Catalog\\Area.parent", 246)
+	call1 := client.Call("test\test", 378)
+	call2 := client.Call("test\test", 246)
+	call3 := client.Call("test\test", 378)
+	call4 := client.Call("test\test", 246)
 	callBatch.Push(call1, call2, call3, call4)
-	call5, _ := callBatch.Call("Catalog\\Area.parent", 378)
-	call6, _ := callBatch.Call("Catalog\\Area.parent", 246)
-	call7, _ := callBatch.Call("Catalog\\Area.parent", 378)
-	call8, _ := callBatch.Call("Catalog\\Area.parent", 246)
+	call5, _ := callBatch.Call("test\test", 378)
+	call6, _ := callBatch.Call("test\test", 246)
+	call7, _ := callBatch.Call("test\test", 378)
+	call8, _ := callBatch.Call("test\test", 246)
 
 	err := callBatch.Invoke(context.TODO())
 	if err != nil {
@@ -48,9 +48,9 @@ func TestClient_CallBatch(t *testing.T) {
 }
 
 func TestClient_Call(t *testing.T) {
-	client := NewClient(NewClientConfig("http://catalog-service.dev.tgs.com"))
+	client := NewClient(NewClientConfig("http://xxx"))
 
-	call := client.Call("Catalog\\Area.parent").SetParam([]int{246})
+	call := client.Call("test\test").SetParam([]int{246})
 	err := call.Invoke(context.TODO())
 	if err != nil {
 		t.Error(err)
