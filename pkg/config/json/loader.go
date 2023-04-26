@@ -2,7 +2,6 @@ package json
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"os"
 )
 
@@ -13,13 +12,9 @@ func Load(file string, conf interface{}) error {
 	}
 	defer f.Close()
 
-	bs , err := ioutil.ReadAll(f)
-	if err != nil {
-		return err
-	}
-
-	err = json.Unmarshal(bs, conf)
-	if err != nil {
+	dec := json.NewDecoder(f)
+	dec.UseNumber()
+	if err = dec.Decode(conf); err != nil {
 		return err
 	}
 	return nil

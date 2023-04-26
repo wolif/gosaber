@@ -109,8 +109,10 @@ func Load(file string, input interface{}) error {
 	if err != nil {
 		return err
 	}
-	err = json.Unmarshal(jsonData, &input)
-	if err != nil {
+
+	dec := json.NewDecoder(bytes.NewReader(jsonData))
+	dec.UseNumber()
+	if err = dec.Decode(&input); err != nil {
 		return err
 	}
 

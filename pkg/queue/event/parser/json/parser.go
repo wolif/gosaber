@@ -1,6 +1,7 @@
 package json
 
 import (
+	"bytes"
 	"encoding/json"
 
 	"github.com/wolif/gosaber/pkg/queue/event"
@@ -19,8 +20,9 @@ func (j *jsonParser) Encode(e *event.Entity) ([]byte, error) {
 }
 func (j *jsonParser) Decode(data []byte) (*event.Entity, error) {
 	e := new(event.Entity)
-	err := json.Unmarshal(data, e)
-	if err != nil {
+	dec := json.NewDecoder(bytes.NewReader(data))
+	dec.UseNumber()
+	if err := dec.Decode(e); err != nil {
 		return nil, err
 	}
 	return e, nil

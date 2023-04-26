@@ -1,6 +1,9 @@
 package protocol
 
-import "encoding/json"
+import (
+	"bytes"
+	"encoding/json"
+)
 
 type Json struct{}
 
@@ -9,5 +12,7 @@ func (j *Json) Encode(data interface{}) ([]byte, error) {
 }
 
 func (j *Json) Decode(src []byte, dst interface{}) error {
-	return json.Unmarshal(src, dst)
+	dec := json.NewDecoder(bytes.NewReader(src))
+	dec.UseNumber()
+	return dec.Decode(dst)
 }
