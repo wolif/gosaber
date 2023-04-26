@@ -31,6 +31,11 @@ func (c *Calling) GetRespHeader() http.Header {
 	return c.GetResponse().Header
 }
 
+func (c *Calling) GetRespCookies() []*http.Cookie {
+	c.judgeResponse()
+	return c.GetResponse().Cookies()
+}
+
 func (c *Calling) GetRespBody() ([]byte, error) {
 	c.judgeResponse()
 	if c.respBody == nil {

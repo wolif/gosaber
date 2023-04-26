@@ -100,6 +100,8 @@ func (c *Calling) WithHeader(headers ...interface{}) *Calling {
 			}
 		case http.Header:
 			c.header = header
+		case *http.Header:
+			c.header = *header
 		}
 	}
 	return c
